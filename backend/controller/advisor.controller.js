@@ -1,6 +1,7 @@
+
 import User from "../models/user.models.js";
 import { uploadToCloudinary } from "../middleware/upload.middleware.js";
-import { generateOTP, sendOTP, storeOTP, verifyOTP } from "../services/sms.service.js";
+import { generateOTP, sendOTP, storeOTP, verifyOTP, normalizePhone } from "../services/sms.service.js";
 import { generateAdvisorWallet } from "../services/solana.service.js";
 
 // Submit advisor onboarding application
@@ -15,25 +16,26 @@ export const submitOnboarding = async (req, res) => {
       });
     }
 
-    // Check if SEBI certificate file is uploaded
     if (!req.file) {
       return res.status(400).json({ message: "SEBI certificate is required" });
     }
 
-    // Upload SEBI certificate to Cloudinary
+    // Normalize phone BEFORE storing
+    const normalizedPhone = normalizePhone(phone);
+    console.log(`Onboarding: ${phone} → ${normalizedPhone}`);
+
     const uploadResult = await uploadToCloudinary(
       req.file.buffer,
       "technova/sebi-certificates"
     );
 
-    // Update user with onboarding data
     const user = await User.findByIdAndUpdate(
       userId,
       {
         sebiCertificate: uploadResult.secure_url,
         sebiRegistrationNumber,
         bio: bio || "",
-        phone,
+        phone: normalizedPhone,
         verificationStatus: "pending",
       },
       { new: true }
@@ -53,23 +55,37 @@ export const submitOnboarding = async (req, res) => {
 export const sendPhoneOTP = async (req, res) => {
   try {
     const userId = req.userId;
-    const { phone } = req.body;
+    let { phone } = req.body;
 
     if (!phone) {
       return res.status(400).json({ message: "Phone number is required" });
     }
 
-    // Generate and send OTP
-    const otp = generateOTP();
-    storeOTP(phone, otp);
-    await sendOTP(phone, otp);
+    // Normalize phone
+    const normalizedPhone = normalizePhone(phone);
+    console.log(`SendOTP: ${phone} → ${normalizedPhone}`);
 
-    // Update user's phone
-    await User.findByIdAndUpdate(userId, { phone });
+    const otp = generateOTP();
+    storeOTP(normalizedPhone, otp);
+
+    try {
+      await sendOTP(normalizedPhone, otp);
+    } catch (sendErr) {
+      console.error("Send OTP error:", sendErr.message);
+      return res.status(500).json({ 
+        message: sendErr.message || "Failed to send OTP",
+        hint: "If using WhatsApp sandbox, recipient must join sandbox first: send 'join <code>' to +14155238886"
+      });
+    }
+
+    await User.findByIdAndUpdate(userId, { 
+      phone: normalizedPhone,
+      phoneVerified: false 
+    });
 
     return res.status(200).json({
-      message: "OTP sent successfully",
-      phone,
+      message: "OTP sent successfully via WhatsApp",
+      phone: normalizedPhone,
     });
   } catch (error) {
     console.error("Error in sendPhoneOTP:", error);
@@ -87,17 +103,16 @@ export const verifyPhoneOTP = async (req, res) => {
       return res.status(400).json({ message: "Phone and OTP are required" });
     }
 
-    // Verify OTP
-    const verification = verifyOTP(phone, otp);
+    const normalizedPhone = normalizePhone(phone);
+    const verification = verifyOTP(normalizedPhone, otp);
 
     if (!verification.valid) {
       return res.status(400).json({ message: verification.message });
     }
 
-    // Mark phone as verified
     const user = await User.findByIdAndUpdate(
       userId,
-      { phoneVerified: true },
+      { phone: normalizedPhone, phoneVerified: true },
       { new: true }
     );
 
@@ -123,7 +138,6 @@ export const updateProfile = async (req, res) => {
       updateData.bio = bio;
     }
 
-    // Handle profile picture upload
     if (req.file) {
       const uploadResult = await uploadToCloudinary(
         req.file.buffer,
@@ -191,10 +205,10 @@ export const getAdvisorProfile = async (req, res) => {
   }
 };
 
-// Get all verified advisors (for investor discovery)
+// Get all verified advisors
 export const getAllAdvisors = async (req, res) => {
   try {
-    const { riskLevel, assetClass, minWinRate, sortBy } = req.query;
+    const { minWinRate, sortBy } = req.query;
 
     const filter = {
       role: "advisor",
@@ -206,16 +220,10 @@ export const getAllAdvisors = async (req, res) => {
       filter.winRate = { $gte: parseFloat(minWinRate) };
     }
 
-    let sortOptions = {};
-    if (sortBy === "trustScore") {
-      sortOptions.trustScore = -1;
-    } else if (sortBy === "winRate") {
-      sortOptions.winRate = -1;
-    } else if (sortBy === "subscribers") {
-      sortOptions.subscriberCount = -1;
-    } else {
-      sortOptions.createdAt = -1;
-    }
+    let sortOptions = { createdAt: -1 };
+    if (sortBy === "trustScore") sortOptions = { trustScore: -1 };
+    else if (sortBy === "winRate") sortOptions = { winRate: -1 };
+    else if (sortBy === "subscribers") sortOptions = { subscriberCount: -1 };
 
     const advisors = await User.find(filter)
       .select("-password -sebiCertificate -phone")
