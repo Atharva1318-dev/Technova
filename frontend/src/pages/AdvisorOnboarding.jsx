@@ -1,14 +1,22 @@
-
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { Upload, Phone, FileText, CheckCircle } from "lucide-react";
+import {
+  Upload,
+  Phone,
+  FileText,
+  CheckCircle,
+  Shield,
+  Lock,
+  Loader2,
+} from "lucide-react";
 import axios from "axios";
 import { AuthDataContext } from "../context/AuthDataContext";
 import { toast } from "react-toastify";
 import { setUserData } from "../redux/userSlice";
 
 const AdvisorOnboarding = () => {
+  // 🔒 LOGIC — DO NOT TOUCH
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     sebiRegistrationNumber: "",
@@ -18,6 +26,7 @@ const AdvisorOnboarding = () => {
   });
   const [sebiFile, setSebiFile] = useState(null);
   const [loading, setLoading] = useState(false);
+
   const { serverUrl } = useContext(AuthDataContext);
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -48,8 +57,7 @@ const AdvisorOnboarding = () => {
         { withCredentials: true }
       );
       toast.success("OTP sent to WhatsApp successfully");
-      // Store normalized phone from response
-      setFormData(prev => ({ ...prev, phone: response.data.phone }));
+      setFormData((prev) => ({ ...prev, phone: response.data.phone }));
       setStep(2);
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to send OTP");
@@ -73,7 +81,6 @@ const AdvisorOnboarding = () => {
       );
       toast.success("Phone verified successfully");
 
-      // Update Redux with server-returned user (isVerified is now true)
       if (response.data.user) {
         dispatch(setUserData(response.data.user));
       }
@@ -111,15 +118,12 @@ const AdvisorOnboarding = () => {
 
       toast.success("Application submitted successfully!");
 
-      // Update Redux with server-returned user (verificationStatus is now pending)
       if (response.data.user) {
         dispatch(setUserData(response.data.user));
       }
 
       setStep(4);
-      setTimeout(() => {
-        navigate("/advisor/dashboard");
-      }, 2000);
+      setTimeout(() => navigate("/advisor/dashboard"), 2000);
     } catch (error) {
       toast.error(error.response?.data?.message || "Submission failed");
     } finally {
@@ -128,248 +132,211 @@ const AdvisorOnboarding = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
-      <div className="max-w-2xl mx-auto">
-        {/* Progress Steps */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
+    <div className="min-h-screen bg-neutral-950 px-4 py-24 relative overflow-hidden">
+      {/* Ambient glows */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[450px] bg-blue-900/20 blur-[120px]" />
+      <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-purple-900/10 blur-[120px]" />
+
+      <div className="max-w-2xl mx-auto relative z-10">
+        {/* Header */}
+        <div className="text-center mb-10">
+          <div className="w-16 h-16 mx-auto rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-5 text-blue-400">
+            <Shield />
+          </div>
+          <h1 className="text-4xl font-bold text-white mb-2">
+            Advisor Onboarding
+          </h1>
+          <p className="text-neutral-400">
+            Complete verification to publish trading signals
+          </p>
+        </div>
+
+        {/* Progress */}
+        <div className="mb-10">
+          <div className="flex justify-between items-center relative">
+            <div className="absolute top-1/2 left-0 w-full h-1 bg-white/10 rounded-full">
+              <div
+                className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all"
+                style={{
+                  width:
+                    step === 1
+                      ? "0%"
+                      : step === 2
+                        ? "33%"
+                        : step === 3
+                          ? "66%"
+                          : "100%",
+                }}
+              />
+            </div>
+
             {[1, 2, 3, 4].map((s) => (
-              <div key={s} className="flex items-center flex-1">
-                <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all ${
-                    step >= s
-                      ? "bg-black text-white"
-                      : "bg-gray-200 text-gray-500"
+              <div
+                key={s}
+                className={`w-10 h-10 rounded-full flex items-center justify-center border z-10 ${step >= s
+                  ? "bg-neutral-950 border-blue-500 text-blue-400"
+                  : "bg-neutral-900 border-white/10 text-neutral-500"
                   }`}
-                >
-                  {s <= step ? (
-                    s < 4 ? s : <CheckCircle className="w-6 h-6" />
-                  ) : (
-                    s
-                  )}
-                </div>
-                {s < 4 && (
-                  <div
-                    className={`flex-1 h-1 mx-2 transition-all ${
-                      step > s ? "bg-black" : "bg-gray-200"
-                    }`}
-                  />
-                )}
+              >
+                {s < step ? <CheckCircle className="w-5 h-5" /> : s}
               </div>
             ))}
           </div>
-          <div className="flex justify-between mt-4 text-xs text-gray-600">
+
+          <div className="flex justify-between text-xs text-neutral-500 mt-2">
             <span>Phone</span>
-            <span>Verify OTP</span>
+            <span>OTP</span>
             <span>Documents</span>
-            <span>Complete</span>
+            <span>Done</span>
           </div>
         </div>
 
-        {/* Step Content */}
-        <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-200">
+        {/* Card */}
+        <div className="bg-neutral-900/60 border border-white/10 rounded-3xl p-8 backdrop-blur-xl shadow-2xl">
+          {/* STEP 1 */}
           {step === 1 && (
-            <div>
-              <div className="flex items-center gap-3 mb-6">
-                <Phone className="w-6 h-6 text-black" />
-                <h2 className="text-2xl font-bold">Phone Verification</h2>
-              </div>
-              <p className="text-gray-600 mb-6">
-                Enter your phone number to receive an OTP via WhatsApp for verification.
+            <>
+              <h2 className="text-xl font-semibold text-white mb-2 flex items-center gap-2">
+                <Phone /> Phone Verification
+              </h2>
+              <p className="text-neutral-400 mb-6">
+                Receive OTP on WhatsApp
               </p>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Phone Number *
-                  </label>
-                  <input
-                    type="tel"
-                    placeholder="10 digit number (e.g., 8433943227)"
-                    value={formData.phone}
-                    onChange={(e) =>
-                      setFormData({ ...formData, phone: e.target.value })
-                    }
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-black focus:ring-1 focus:ring-black"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    OTP will be sent via WhatsApp
-                  </p>
-                </div>
-              </div>
+
+              <input
+                type="tel"
+                placeholder="10 digit phone number"
+                value={formData.phone}
+                onChange={(e) =>
+                  setFormData({ ...formData, phone: e.target.value })
+                }
+                className="w-full px-4 py-3 bg-neutral-950/60 border border-white/10 rounded-xl text-white placeholder:text-neutral-600 focus:outline-none focus:border-blue-500 mb-6"
+              />
+
               <button
                 onClick={handleSendOTP}
-                disabled={loading || !formData.phone}
-                className="w-full py-3 bg-black text-white font-semibold rounded-lg hover:bg-gray-900 transition disabled:opacity-50 disabled:cursor-not-allowed mt-6"
+                disabled={loading}
+                className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold disabled:opacity-50"
               >
-                {loading ? "Sending..." : "Send OTP via WhatsApp"}
+                {loading ? "Sending..." : "Send OTP"}
               </button>
-            </div>
+            </>
           )}
 
+          {/* STEP 2 */}
           {step === 2 && (
-            <div>
-              <div className="flex items-center gap-3 mb-6">
-                <CheckCircle className="w-6 h-6 text-black" />
-                <h2 className="text-2xl font-bold">Verify OTP</h2>
-              </div>
-              <p className="text-gray-600 mb-6">
-                Enter the 6-digit OTP sent to WhatsApp at {formData.phone}
+            <>
+              <h2 className="text-xl font-semibold text-white mb-2 flex items-center gap-2">
+                <Lock /> Verify OTP
+              </h2>
+              <p className="text-neutral-400 mb-6">
+                Sent to {formData.phone}
               </p>
-              <div className="space-y-4">
-                <input
-                  type="text"
-                  placeholder="000000"
-                  maxLength={6}
-                  value={formData.otp}
-                  onChange={(e) => {
-                    if (/^\d*$/.test(e.target.value)) {
-                      setFormData({ ...formData, otp: e.target.value });
-                    }
-                  }}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg text-center text-3xl tracking-widest font-semibold focus:outline-none focus:border-black focus:ring-1 focus:ring-black"
-                />
-                <p className="text-xs text-gray-500 text-center">
-                  OTP valid for 10 minutes
-                </p>
-              </div>
-              <div className="flex gap-3 mt-6">
+
+              <input
+                type="text"
+                maxLength={6}
+                placeholder="000000"
+                value={formData.otp}
+                onChange={(e) =>
+                  /^\d*$/.test(e.target.value) &&
+                  setFormData({ ...formData, otp: e.target.value })
+                }
+                className="w-full px-4 py-3 text-center text-3xl tracking-widest bg-neutral-950/60 border border-white/10 rounded-xl text-white focus:outline-none focus:border-blue-500 mb-6"
+              />
+
+              <div className="flex gap-3">
                 <button
                   onClick={() => setStep(1)}
-                  className="flex-1 py-3 border border-gray-300 text-black font-semibold rounded-lg hover:bg-gray-50 transition"
+                  className="flex-1 py-3 border border-white/10 rounded-xl text-neutral-300"
                 >
                   Back
                 </button>
                 <button
                   onClick={handleVerifyOTP}
-                  disabled={loading || formData.otp.length !== 6}
-                  className="flex-1 py-3 bg-black text-white font-semibold rounded-lg hover:bg-gray-900 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={loading}
+                  className="flex-1 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold"
                 >
-                  {loading ? "Verifying..." : "Verify OTP"}
+                  Verify
                 </button>
               </div>
-            </div>
+            </>
           )}
 
+          {/* STEP 3 */}
           {step === 3 && (
-            <div>
-              <div className="flex items-center gap-3 mb-6">
-                <FileText className="w-6 h-6 text-black" />
-                <h2 className="text-2xl font-bold">SEBI Registration</h2>
-              </div>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    SEBI Registration Number *
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g., INH000001234"
-                    value={formData.sebiRegistrationNumber}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        sebiRegistrationNumber: e.target.value.toUpperCase(),
-                      })
-                    }
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-black focus:ring-1 focus:ring-black"
-                  />
-                </div>
+            <>
+              <h2 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
+                <FileText /> SEBI Details
+              </h2>
 
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Bio (Optional)
-                  </label>
-                  <textarea
-                    placeholder="Tell investors about your trading experience, expertise, and investment strategy..."
-                    value={formData.bio}
-                    onChange={(e) =>
-                      setFormData({ ...formData, bio: e.target.value })
-                    }
-                    rows={4}
-                    maxLength={500}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-black focus:ring-1 focus:ring-black resize-none"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    {formData.bio.length}/500 characters
-                  </p>
-                </div>
+              <input
+                type="text"
+                placeholder="SEBI Registration Number"
+                value={formData.sebiRegistrationNumber}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    sebiRegistrationNumber: e.target.value.toUpperCase(),
+                  })
+                }
+                className="w-full px-4 py-3 bg-neutral-950/60 border border-white/10 rounded-xl text-white mb-4"
+              />
 
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    SEBI Certificate *
-                  </label>
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition cursor-pointer">
-                    <input
-                      type="file"
-                      accept="image/*,.pdf"
-                      onChange={handleFileChange}
-                      className="hidden"
-                      id="sebi-upload"
-                    />
-                    <label
-                      htmlFor="sebi-upload"
-                      className="cursor-pointer flex flex-col items-center"
-                    >
-                      <Upload className="w-10 h-10 text-gray-400 mb-2" />
-                      <p className="text-sm font-medium text-gray-700">
-                        {sebiFile
-                          ? sebiFile.name
-                          : "Click to upload SEBI certificate"}
-                      </p>
-                      <p className="text-xs text-gray-500 mt-1">
-                        PDF or Image (Max 5MB)
-                      </p>
-                    </label>
-                  </div>
-                </div>
-              </div>
+              <textarea
+                placeholder="Short professional bio (optional)"
+                rows={4}
+                value={formData.bio}
+                onChange={(e) =>
+                  setFormData({ ...formData, bio: e.target.value })
+                }
+                className="w-full px-4 py-3 bg-neutral-950/60 border border-white/10 rounded-xl text-white mb-4 resize-none"
+              />
 
-              <div className="flex gap-3 mt-6">
+              <label className="block border-2 border-dashed border-white/10 rounded-xl p-6 text-center cursor-pointer hover:border-white/20 mb-6">
+                <input
+                  type="file"
+                  accept="image/*,.pdf"
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+                <Upload className="mx-auto text-neutral-400 mb-2" />
+                <p className="text-neutral-300 text-sm">
+                  {sebiFile ? sebiFile.name : "Upload SEBI Certificate"}
+                </p>
+              </label>
+
+              <div className="flex gap-3">
                 <button
                   onClick={() => setStep(2)}
-                  className="flex-1 py-3 border border-gray-300 text-black font-semibold rounded-lg hover:bg-gray-50 transition"
+                  className="flex-1 py-3 border border-white/10 rounded-xl text-neutral-300"
                 >
                   Back
                 </button>
                 <button
                   onClick={handleSubmit}
-                  disabled={loading || !formData.sebiRegistrationNumber || !sebiFile}
-                  className="flex-1 py-3 bg-black text-white font-semibold rounded-lg hover:bg-gray-900 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={loading}
+                  className="flex-1 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold"
                 >
-                  {loading ? "Submitting..." : "Submit Application"}
+                  Submit
                 </button>
               </div>
-            </div>
+            </>
           )}
 
+          {/* STEP 4 */}
           {step === 4 && (
-            <div className="text-center py-12">
-              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="w-12 h-12 text-green-600" />
-              </div>
-              <h2 className="text-3xl font-bold mb-2">
-                Application Submitted!
+            <div className="text-center py-10">
+              <CheckCircle className="w-16 h-16 text-green-400 mx-auto mb-4" />
+              <h2 className="text-2xl font-bold text-white mb-2">
+                Application Submitted
               </h2>
-              <p className="text-gray-600 mb-2">
-                Your advisor application has been received successfully.
+              <p className="text-neutral-400 mb-6">
+                Our team will verify your details shortly
               </p>
-              <p className="text-gray-500 text-sm mb-8">
-                You'll be notified once it's approved by our admin team. This usually takes 1-2 business days.
-              </p>
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
-                <p className="text-sm text-blue-800">
-                  ✓ Phone verified: {formData.phone}
-                </p>
-                <p className="text-sm text-blue-800">
-                  ✓ SEBI Registration: {formData.sebiRegistrationNumber}
-                </p>
-                <p className="text-sm text-blue-800">
-                  ✓ Certificate uploaded: {sebiFile?.name}
-                </p>
-              </div>
               <button
                 onClick={() => navigate("/advisor/dashboard")}
-                className="px-8 py-3 bg-black text-white font-semibold rounded-lg hover:bg-gray-900 transition"
+                className="px-8 py-3 rounded-xl bg-white text-black font-semibold"
               >
                 Go to Dashboard
               </button>

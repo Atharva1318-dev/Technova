@@ -66,7 +66,7 @@ export const sendOTP = async (phoneNumber, otp) => {
     console.log(`[MOCK WHATSAPP] OTP for ${to}: ${otp}`);
     return { success: true, mock: true, otp };
   }
-
+  console.log(otp);
   try {
     const message = await client.messages.create({
       from,
