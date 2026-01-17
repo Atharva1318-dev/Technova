@@ -1,26 +1,43 @@
-import React, { useContext, useEffect, useState } from "react";
-import { AuthDataContext } from "./AuthDataContext.jsx";
+
+import React, { useEffect, useContext, useState } from "react";
+import { useDispatch } from "react-redux";
 import axios from "axios";
-import { useDispatch,useSelector } from "react-redux";
-import { setUserData } from "../redux/userSlice.js";
+import { setUserData } from "../redux/userSlice";
+import { AuthDataContext } from "./AuthDataContext";
 
 const UserDataContext = () => {
   const dispatch = useDispatch();
   const { serverUrl } = useContext(AuthDataContext);
-  const getCurrentUser=async()=>{
-    try {
-      const res=await axios.get(`${serverUrl}/api/user/current`,{withCredentials:true});
-      console.log("Current User Data:",res.data.user);
-      dispatch(setUserData(res.data.user));
-    } catch (error) {
-      
-      console.error("Failed to fetch user data",error);
-    }
-  }
+  const [hasFetched, setHasFetched] = useState(false);
 
   useEffect(() => {
-    getCurrentUser();
-  }, [dispatch, serverUrl]);
+    // Only fetch once on mount
+    if (hasFetched) return;
+
+    const fetchUser = async () => {
+      try {
+        const response = await axios.get(`${serverUrl}/api/user/current`, {
+          withCredentials: true,
+        });
+        
+        if (response.data.user) {
+          dispatch(setUserData(response.data.user));
+        }
+      } catch (error) {
+        // 401 means not logged in - this is expected, don't log error
+        if (error.response?.status !== 401) {
+          console.error("Error fetching user:", error);
+        }
+        // Clear user data if not authenticated
+        dispatch(setUserData(null));
+      } finally {
+        setHasFetched(true);
+      }
+    };
+
+    fetchUser();
+  }, [dispatch, serverUrl, hasFetched]);
+
   return null;
 };
 
