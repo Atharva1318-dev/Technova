@@ -108,6 +108,7 @@ export const sendNotification = async (phoneNumber, message) => {
   }
 };
 
+
 export default {
   generateOTP,
   normalizePhone,
