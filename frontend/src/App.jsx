@@ -14,11 +14,14 @@ import { useSelector } from "react-redux";
 import "react-toastify/dist/ReactToastify.css";
 import { Navigate } from "react-router-dom";
 
+import Navbar from "./components/Navbar.jsx";
+import Footer from "./components/Footer.jsx";
+
 const App = () => {
   const userData = useSelector((state) => state.user.userData);
-  
+
   return (
-    <div>
+    <div className="bg-neutral-950 text-white min-h-screen font-sans selection:bg-blue-500/30">
       <ToastContainer
         position="top-left"
         hideProgressBar={true}
@@ -33,6 +36,7 @@ const App = () => {
         }}
       />
       <UserDataContext />
+      <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/signup" element={userData ? <Navigate to="/" replace /> : <SignUp />} />
@@ -40,15 +44,16 @@ const App = () => {
         <Route path="/role-selection" element={<RoleSelection />} />
         <Route path="/advisor/onboarding" element={<AdvisorOnboarding />} />
         <Route path="/advisor/dashboard" element={<AdvisorDashboard />} />
-        <Route 
-          path="/investor/dashboard" 
+        <Route
+          path="/investor/dashboard"
           element={
-            userData && userData.role === "investor" 
-              ? <InvestorDashboard /> 
+            userData && userData.role === "investor"
+              ? <InvestorDashboard />
               : <Navigate to="/login" replace />
-          } 
+          }
         />
       </Routes>
+      <Footer />
     </div>
   );
 };
