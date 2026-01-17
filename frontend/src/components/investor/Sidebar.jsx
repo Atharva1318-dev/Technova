@@ -12,12 +12,11 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { AuthDataContext } from "../../context/AuthDataContext";
-import { useContext } from "react";
+import { useAuth } from "../../context/AuthContext";
 
 const Sidebar = ({ activePage, setActivePage, userData }) => {
   const navigate = useNavigate();
-  const { serverUrl } = useContext(AuthDataContext);
+  const { serverUrl } = useAuth();
 
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },

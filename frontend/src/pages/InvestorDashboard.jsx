@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
 import Sidebar from "../components/investor/Sidebar";
 import DashboardPage from "../components/investor/DashboardPage";
 import HotStocksPage from "../components/investor/HotStocksPage";
@@ -11,10 +10,11 @@ import AnalyticsPage from "../components/investor/AnalyticsPage";
 import WalletPage from "../components/investor/WalletPage";
 import SettingsPage from "../components/investor/SettingsPage";
 import { initializeSocket, joinInvestorRoom, joinSignalsFeed } from "../utils/socket";
+import { useAuth } from "../context/AuthContext";
 
 const InvestorDashboard = () => {
   const [activePage, setActivePage] = useState("dashboard");
-  const userData = useSelector((state) => state.user.userData);
+  const { userData } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {

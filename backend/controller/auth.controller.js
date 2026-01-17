@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 import {generateToken} from "../utils/token.js";
 const SignUp = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, sebiRegistrationNumber, phone } = req.body;
     if (!name || !email || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
@@ -12,17 +12,38 @@ const SignUp = async (req, res) => {
     // Validate role
     const userRole = role && ["advisor", "investor"].includes(role) ? role : "investor";
     
+    // For advisors, SEBI registration number is required
+    if (userRole === "advisor" && !sebiRegistrationNumber) {
+      return res.status(400).json({ 
+        message: "SEBI registration number is required for advisors" 
+      });
+    }
+    
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: "User already exists" });
+      return res.status(400).json({ 
+        message: "User already exists. Please login instead.",
+        userExists: true
+      });
     }
+    
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = await User.create({
+    
+    const userData = {
       name,
       email,
       password: hashedPassword,
       role: userRole,
-    });
+    };
+    
+    // Add advisor-specific fields if role is advisor
+    if (userRole === "advisor") {
+      userData.sebiRegistrationNumber = sebiRegistrationNumber;
+      if (phone) userData.phone = phone;
+    }
+    
+    const newUser = await User.create(userData);
+    
     const token = generateToken({ id: newUser._id });
     res.cookie("token", token, {
       httpOnly: true,
@@ -117,4 +138,22 @@ const logout = async (req, res) => {
   }
 };
 
-export { SignUp, Login, googleAuth, logout };
+// Check if user exists by email
+const checkUserExists = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+    
+    const user = await User.findOne({ email });
+    return res.status(200).json({ 
+      exists: !!user,
+      isGoogleAuth: user?.isGoogleAuth || false
+    });
+  } catch (error) {
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export { SignUp, Login, googleAuth, logout, checkUserExists };

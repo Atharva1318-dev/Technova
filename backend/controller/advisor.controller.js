@@ -1,7 +1,6 @@
 
 import User from "../models/user.models.js";
 import { uploadToCloudinary } from "../middleware/upload.middleware.js";
-import { generateOTP, sendOTP, storeOTP, verifyOTP, normalizePhone } from "../services/sms.service.js";
 import { generateAdvisorWallet } from "../services/solana.service.js";
 
 // Submit advisor onboarding application
@@ -10,19 +9,15 @@ export const submitOnboarding = async (req, res) => {
     const userId = req.userId;
     const { sebiRegistrationNumber, bio, phone } = req.body;
 
-    if (!sebiRegistrationNumber || !phone) {
+    if (!sebiRegistrationNumber) {
       return res.status(400).json({ 
-        message: "SEBI registration number and phone are required" 
+        message: "SEBI registration number is required" 
       });
     }
 
     if (!req.file) {
       return res.status(400).json({ message: "SEBI certificate is required" });
     }
-
-    // Normalize phone BEFORE storing
-    const normalizedPhone = normalizePhone(phone);
-    console.log(`Onboarding: ${phone} → ${normalizedPhone}`);
 
     const uploadResult = await uploadToCloudinary(
       req.file.buffer,
@@ -35,7 +30,7 @@ export const submitOnboarding = async (req, res) => {
         sebiCertificate: uploadResult.secure_url,
         sebiRegistrationNumber,
         bio: bio || "",
-        phone: normalizedPhone,
+        phone: phone || "",
         verificationStatus: "pending",
       },
       { new: true }
@@ -47,81 +42,6 @@ export const submitOnboarding = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in submitOnboarding:", error);
-    return res.status(500).json({ message: "Internal server error" });
-  }
-};
-
-// Send OTP for phone verification
-export const sendPhoneOTP = async (req, res) => {
-  try {
-    const userId = req.userId;
-    let { phone } = req.body;
-
-    if (!phone) {
-      return res.status(400).json({ message: "Phone number is required" });
-    }
-
-    // Normalize phone
-    const normalizedPhone = normalizePhone(phone);
-    console.log(`SendOTP: ${phone} → ${normalizedPhone}`);
-
-    const otp = generateOTP();
-    storeOTP(normalizedPhone, otp);
-
-    try {
-      await sendOTP(normalizedPhone, otp);
-    } catch (sendErr) {
-      console.error("Send OTP error:", sendErr.message);
-      return res.status(500).json({ 
-        message: sendErr.message || "Failed to send OTP",
-        hint: "If using WhatsApp sandbox, recipient must join sandbox first: send 'join <code>' to +14155238886"
-      });
-    }
-
-    await User.findByIdAndUpdate(userId, { 
-      phone: normalizedPhone,
-      phoneVerified: false 
-    });
-
-    return res.status(200).json({
-      message: "OTP sent successfully via WhatsApp",
-      phone: normalizedPhone,
-    });
-  } catch (error) {
-    console.error("Error in sendPhoneOTP:", error);
-    return res.status(500).json({ message: "Failed to send OTP" });
-  }
-};
-
-// Verify phone OTP
-export const verifyPhoneOTP = async (req, res) => {
-  try {
-    const userId = req.userId;
-    const { phone, otp } = req.body;
-
-    if (!phone || !otp) {
-      return res.status(400).json({ message: "Phone and OTP are required" });
-    }
-
-    const normalizedPhone = normalizePhone(phone);
-    const verification = verifyOTP(normalizedPhone, otp);
-
-    if (!verification.valid) {
-      return res.status(400).json({ message: verification.message });
-    }
-
-    const user = await User.findByIdAndUpdate(
-      userId,
-      { phone: normalizedPhone, phoneVerified: true },
-      { new: true }
-    );
-
-    return res.status(200).json({
-      message: "Phone verified successfully",
-      user,
-    });
-  } catch (error) {
-    console.error("Error in verifyPhoneOTP:", error);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -239,8 +159,6 @@ export const getAllAdvisors = async (req, res) => {
 
 export default {
   submitOnboarding,
-  sendPhoneOTP,
-  verifyPhoneOTP,
   updateProfile,
   getDashboardStats,
   getAdvisorProfile,

@@ -1,19 +1,15 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserCircle, TrendingUp } from "lucide-react";
-import axios from "axios";
-import { AuthDataContext } from "../context/AuthDataContext";
-import { useDispatch } from "react-redux";
-import { setUserData } from "../redux/userSlice";
 import { toast } from "react-toastify";
+import { useAuth } from "../context/AuthContext";
 
 const RoleSelection = () => {
   const [selectedRole, setSelectedRole] = useState(null);
   const [loading, setLoading] = useState(false);
   const [pendingAuth, setPendingAuth] = useState(null);
   const navigate = useNavigate();
-  const { serverUrl } = useContext(AuthDataContext);
-  const dispatch = useDispatch();
+  const { completeGoogleSignup } = useAuth();
 
   useEffect(() => {
     // Check if there's pending Google auth
@@ -31,17 +27,12 @@ const RoleSelection = () => {
 
     setLoading(true);
     try {
-      const res = await axios.post(
-        `${serverUrl}/api/auth/google`,
-        { 
-          name: pendingAuth.name, 
-          email: pendingAuth.email,
-          role: selectedRole 
-        },
-        { withCredentials: true }
+      const res = await completeGoogleSignup(
+        pendingAuth.name, 
+        pendingAuth.email,
+        selectedRole
       );
 
-      dispatch(setUserData(res.data.user));
       sessionStorage.removeItem("pendingGoogleAuth");
       toast.success("Account created successfully!");
 

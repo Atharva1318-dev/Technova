@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
 import LoginButton from '../components/LoginButton';
+import { useAuth } from '../context/AuthContext';
 
 const Home = () => {
   const navigate = useNavigate();
-  const userData = useSelector((state) => state.user.userData);
+  const { userData } = useAuth();
 
   useEffect(() => {
     if (userData) {

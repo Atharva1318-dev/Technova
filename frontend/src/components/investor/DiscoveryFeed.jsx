@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { AuthDataContext } from "../../context/AuthDataContext";
+import { useAuth } from "../../context/AuthContext";
 import { toast } from "react-toastify";
 import { TrendingUp, TrendingDown, Target, Shield, Award, Filter } from "lucide-react";
 import { onNewSignal } from "../../utils/socket";
@@ -12,7 +12,7 @@ const DiscoveryFeed = () => {
     assetClass: "",
     riskLevel: "",
   });
-  const { serverUrl } = useContext(AuthDataContext);
+  const { serverUrl } = useAuth();
 
   useEffect(() => {
     fetchSignals();

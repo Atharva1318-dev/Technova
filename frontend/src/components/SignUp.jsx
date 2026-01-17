@@ -1,42 +1,52 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "axios";
-import { AuthDataContext } from "../context/AuthDataContext";
-import { Lock, Mail, User, UserCircle, TrendingUp } from "lucide-react";
+import { Lock, Mail, User, UserCircle, TrendingUp, Phone, FileText } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { toast } from "react-toastify";
-import { useDispatch } from "react-redux";
-import { setUserData } from "../redux/userSlice";
-import { signInWithPopup } from "firebase/auth";
-import { auth, provider } from "../utils/firebase.js";
+import { useAuth } from "../context/AuthContext";
 
 export default function SignUp() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("investor");
+  const [sebiRegistrationNumber, setSebiRegistrationNumber] = useState("");
+  const [phone, setPhone] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { serverUrl } = useContext(AuthDataContext);
-  const dispatch = useDispatch();
+  const { signup, googleSignIn, checkUserExists } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
+    
+    // Validate required fields
     if (!name || !email || !password) {
       setError("All fields are required");
       setLoading(false);
       return;
     }
+    
+    // Validate advisor-specific fields
+    if (role === "advisor" && !sebiRegistrationNumber) {
+      setError("SEBI Registration Number is required for advisors");
+      setLoading(false);
+      return;
+    }
+    
     try {
-      const res = await axios.post(
-        `${serverUrl}/api/auth/signup`,
-        { name, email, password, role },
-        { withCredentials: true }
-      );
-      dispatch(setUserData(res.data.user));
+      // Check if user already exists
+      const userCheck = await checkUserExists(email);
+      if (userCheck.exists) {
+        setError("Account already exists. Please login instead.");
+        toast.error("Account already exists. Please login instead.");
+        setLoading(false);
+        return;
+      }
+
+      const res = await signup(name, email, password, role, sebiRegistrationNumber, phone);
       toast.success("Signup Successful");
       
       // Redirect based on role
@@ -55,22 +65,20 @@ export default function SignUp() {
 
   const handleGoogleAuth = async () => {
     try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-      const name = user.displayName;
-      const email = user.email;
+      const res = await googleSignIn(role);
       
-      const res = await axios.post(
-        `${serverUrl}/api/auth/google`,
-        { name, email, role },
-        { withCredentials: true }
-      );
+      // Check if role selection is required (new user without role)
+      if (res.requiresRole) {
+        // Store user data temporarily and redirect to role selection
+        sessionStorage.setItem("pendingGoogleAuth", JSON.stringify(res.pendingAuth));
+        navigate("/role-selection");
+        return;
+      }
       
-      dispatch(setUserData(res.data.user));
       toast.success("Google Sign-Up Successful");
       
       // Redirect based on role
-      if (role === "advisor") {
+      if (res.user.role === "advisor") {
         navigate("/advisor/onboarding");
       } else {
         navigate("/investor/dashboard");
@@ -174,6 +182,33 @@ export default function SignUp() {
               className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-black transition"
             />
           </div>
+
+          {/* Advisor-specific fields */}
+          {role === "advisor" && (
+            <>
+              <div className="relative">
+                <FileText className="absolute left-3 top-3.5 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="SEBI Registration Number *"
+                  value={sebiRegistrationNumber}
+                  onChange={(e) => setSebiRegistrationNumber(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-black transition"
+                  required
+                />
+              </div>
+              <div className="relative">
+                <Phone className="absolute left-3 top-3.5 w-4 h-4 text-gray-400" />
+                <input
+                  type="tel"
+                  placeholder="Phone Number (optional)"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-black transition"
+                />
+              </div>
+            </>
+          )}
 
           <button
             type="submit"

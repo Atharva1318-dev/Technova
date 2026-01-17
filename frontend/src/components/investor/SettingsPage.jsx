@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { useSelector } from "react-redux";
 import { User, Mail, Phone, Shield, Bell, Palette } from "lucide-react";
 import { toast } from "react-toastify";
+import { useAuth } from "../../context/AuthContext";
 
 const SettingsPage = () => {
-  const userData = useSelector((state) => state.user.userData);
+  const { userData } = useAuth();
   const [notifications, setNotifications] = useState({
     newSignals: true,
     tradeUpdates: true,

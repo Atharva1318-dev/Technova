@@ -64,21 +64,15 @@
 - Complete signup (email or Google)
 - → Redirected to `/advisor/onboarding`
 
-### Step 2: Onboarding (Multi-Step)
+### Step 2: Onboarding
 
-**Phase 1: Phone Verification**
-- Enter phone number
-- Click "Send OTP"
-- Receive SMS with 6-digit code
-- Enter OTP and verify
-
-**Phase 2: SEBI Registration**
-- Enter SEBI registration number
+**SEBI Registration & Document Upload**
+- Enter SEBI registration number (already provided during signup)
 - Write bio (optional, 500 chars)
 - Upload SEBI certificate (PDF/Image, max 5MB)
 - Click "Submit Application"
 
-**Phase 3: Waiting for Approval**
+**Waiting for Approval**
 - Application submitted
 - Status: "Pending Admin Approval"
 - Cannot create signals yet

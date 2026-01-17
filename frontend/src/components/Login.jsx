@@ -1,14 +1,9 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "axios";
-import { AuthDataContext } from "../context/AuthDataContext";
 import { Lock, Mail, UserCircle, TrendingUp } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { toast } from "react-toastify";
-import { useDispatch } from "react-redux";
-import { setUserData } from "../redux/userSlice";
-import { signInWithPopup } from "firebase/auth";
-import { auth, provider } from "../utils/firebase.js";
+import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -17,8 +12,7 @@ export default function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { serverUrl } = useContext(AuthDataContext);
-  const dispatch = useDispatch();
+  const { login, googleSignIn, checkUserExists } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,16 +24,20 @@ export default function Login() {
       return;
     }
     try {
-      const res = await axios.post(
-        `${serverUrl}/api/auth/login`,
-        { email, password },
-        { withCredentials: true }
-      );
-      dispatch(setUserData(res.data.user));
+      // Check if user exists before attempting login
+      const userCheck = await checkUserExists(email);
+      if (!userCheck.exists) {
+        setError("Account not found. Please sign up first.");
+        toast.error("Account not found. Please sign up first.");
+        setLoading(false);
+        return;
+      }
+
+      const res = await login(email, password);
       toast.success("Login Successful");
       
       // Redirect based on user's actual role
-      const user = res.data.user;
+      const user = res.user;
       if (user.role === "advisor") {
         if (!user.isVerified) {
           navigate("/advisor/onboarding");
@@ -63,39 +61,28 @@ export default function Login() {
 
   const handleGoogleAuth = async () => {
     try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-      const name = user.displayName;
-      const email = user.email;
-      
-      // Try to login first (existing user)
-      const res = await axios.post(
-        `${serverUrl}/api/auth/google`,
-        { name, email },
-        { withCredentials: true }
-      );
+      const res = await googleSignIn();
       
       // Check if role selection is required (new user)
-      if (res.data.requiresRole) {
+      if (res.requiresRole) {
         // Store user data temporarily and redirect to role selection
-        sessionStorage.setItem("pendingGoogleAuth", JSON.stringify({ name, email }));
+        sessionStorage.setItem("pendingGoogleAuth", JSON.stringify(res.pendingAuth));
         navigate("/role-selection");
         return;
       }
       
-      dispatch(setUserData(res.data.user));
       toast.success("Google Sign-In Successful");
       
       // Redirect based on role
-      if (res.data.user.role === "advisor") {
-        if (!res.data.user.isVerified) {
+      if (res.user.role === "advisor") {
+        if (!res.user.isVerified) {
           navigate("/advisor/onboarding");
         } else {
           navigate("/advisor/dashboard");
         }
-      } else if (res.data.user.role === "investor") {
+      } else if (res.user.role === "investor") {
         navigate("/investor/dashboard");
-      } else if (res.data.user.role === "admin") {
+      } else if (res.user.role === "admin") {
         navigate("/admin/panel");
       } else {
         navigate("/");

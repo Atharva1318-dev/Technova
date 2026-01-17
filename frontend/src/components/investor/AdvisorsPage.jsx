@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { AuthDataContext } from "../../context/AuthDataContext";
+import { useAuth } from "../../context/AuthContext";
 import { toast } from "react-toastify";
 import { Award, TrendingUp, Users, Target, Star } from "lucide-react";
 
@@ -8,7 +8,7 @@ const AdvisorsPage = () => {
   const [advisors, setAdvisors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState("trustScore");
-  const { serverUrl } = useContext(AuthDataContext);
+  const { serverUrl } = useAuth();
 
   useEffect(() => {
     fetchAdvisors();

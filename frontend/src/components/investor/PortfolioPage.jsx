@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { AuthDataContext } from "../../context/AuthDataContext";
+import { useAuth } from "../../context/AuthContext";
 import { toast } from "react-toastify";
 import { TrendingUp, TrendingDown, X as CloseIcon, Wallet, Target, Award } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
@@ -10,7 +10,7 @@ const PortfolioPage = () => {
   const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("active");
-  const { serverUrl } = useContext(AuthDataContext);
+  const { serverUrl } = useAuth();
 
   useEffect(() => {
     fetchPaperTrades();

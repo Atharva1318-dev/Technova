@@ -6,10 +6,12 @@ import {
   Login,
   googleAuth,
   logout,
+  checkUserExists,
 } from "../controller/auth.controller.js";
 
 AuthRouter.post("/signup", SignUp);
 AuthRouter.post("/login", Login);
 AuthRouter.post("/google", googleAuth);
 AuthRouter.post("/logout", logout);
+AuthRouter.post("/check-user", checkUserExists);
 export default AuthRouter;

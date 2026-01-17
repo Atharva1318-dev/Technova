@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { AuthDataContext } from "../../context/AuthDataContext";
+import { useAuth } from "../../context/AuthContext";
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { TrendingUp, Award, Target, Calendar } from "lucide-react";
 
@@ -8,7 +8,7 @@ const AnalyticsPage = () => {
   const [summary, setSummary] = useState(null);
   const [paperTrades, setPaperTrades] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { serverUrl } = useContext(AuthDataContext);
+  const { serverUrl } = useAuth();
 
   useEffect(() => {
     fetchData();

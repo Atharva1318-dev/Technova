@@ -29,9 +29,6 @@ const userSchema = new Schema(
     },
     solanaWallet: { type: String }, // Solana PDA address
     trustScore: { type: Number, default: 0, min: 0, max: 100 },
-    // SMS 2FA
-    phoneVerified: { type: Boolean, default: false },
-    twoFactorEnabled: { type: Boolean, default: false },
     // Analytics
     subscriberCount: { type: Number, default: 0 },
     totalTrades: { type: Number, default: 0 },

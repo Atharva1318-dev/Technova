@@ -8,13 +8,21 @@ import RoleSelection from "./pages/RoleSelection.jsx";
 import AdvisorOnboarding from "./pages/AdvisorOnboarding.jsx";
 import AdvisorDashboard from "./pages/AdvisorDashboard.jsx";
 import InvestorDashboard from "./pages/InvestorDashboard.jsx";
-import UserDataContext from "./context/UserDataContext.jsx";
-import { useSelector } from "react-redux";
+import { useAuth } from "./context/AuthContext";
 import "react-toastify/dist/ReactToastify.css";
 import { Navigate } from "react-router-dom";
 
 const App = () => {
-  const userData = useSelector((state) => state.user.userData);
+  const { userData, loading } = useAuth();
+  
+  // Show loading state while checking authentication
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-zinc-950">
+        <div className="text-zinc-400">Loading...</div>
+      </div>
+    );
+  }
   
   return (
     <div>
@@ -31,7 +39,6 @@ const App = () => {
           boxShadow: "0 4px 24px rgba(0,0,0,0.5)",
         }}
       />
-      <UserDataContext />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/signup" element={userData ? <Navigate to="/" /> : <SignUp />} />

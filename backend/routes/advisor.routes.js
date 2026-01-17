@@ -4,8 +4,6 @@ import { checkRole } from "../middleware/roleCheck.middleware.js";
 import { upload } from "../middleware/upload.middleware.js";
 import {
   submitOnboarding,
-  sendPhoneOTP,
-  verifyPhoneOTP,
   updateProfile,
   getDashboardStats,
   getAdvisorProfile,
@@ -22,10 +20,6 @@ AdvisorRouter.post(
   upload.single("sebiCertificate"),
   submitOnboarding
 );
-
-// Phone verification
-AdvisorRouter.post("/send-otp", isAuth, checkRole("advisor"), sendPhoneOTP);
-AdvisorRouter.post("/verify-otp", isAuth, checkRole("advisor"), verifyPhoneOTP);
 
 // Profile management
 AdvisorRouter.put(

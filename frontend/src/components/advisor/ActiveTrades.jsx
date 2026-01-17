@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { AuthDataContext } from "../../context/AuthDataContext";
+import { useAuth } from "../../context/AuthContext";
 import { toast } from "react-toastify";
 import { Edit2, X as CloseIcon, TrendingUp, TrendingDown } from "lucide-react";
 import { onTradeUpdate, onTradeClosed } from "../../utils/socket";
@@ -10,7 +10,7 @@ const ActiveTrades = ({ onRefresh }) => {
   const [loading, setLoading] = useState(true);
   const [editingTrade, setEditingTrade] = useState(null);
   const [editForm, setEditForm] = useState({ stopLoss: "", target: "" });
-  const { serverUrl } = useContext(AuthDataContext);
+  const { serverUrl } = useAuth();
 
   useEffect(() => {
     fetchTrades();

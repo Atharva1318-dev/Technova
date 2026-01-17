@@ -1,14 +1,12 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { AuthDataContext } from "../../context/AuthDataContext";
 import { Wallet, TrendingUp, TrendingDown, RefreshCw, Plus, Minus } from "lucide-react";
-import { useSelector } from "react-redux";
+import { useAuth } from "../../context/AuthContext";
 
 const WalletPage = () => {
   const [balance, setBalance] = useState(100000);
   const [transactions, setTransactions] = useState([]);
-  const { serverUrl } = useContext(AuthDataContext);
-  const userData = useSelector((state) => state.user.userData);
+  const { userData, serverUrl } = useAuth();
 
   useEffect(() => {
     if (userData) {

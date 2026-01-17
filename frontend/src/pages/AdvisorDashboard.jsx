@@ -1,8 +1,6 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
 import axios from "axios";
-import { AuthDataContext } from "../context/AuthDataContext";
 import { toast } from "react-toastify";
 import { 
   TrendingUp, 
@@ -16,28 +14,32 @@ import {
 import SignalCreator from "../components/advisor/SignalCreator";
 import ActiveTrades from "../components/advisor/ActiveTrades";
 import { initializeSocket, joinAdvisorRoom } from "../utils/socket";
+import { useAuth } from "../context/AuthContext";
 
 const AdvisorDashboard = () => {
   const [stats, setStats] = useState(null);
   const [showSignalCreator, setShowSignalCreator] = useState(false);
   const [loading, setLoading] = useState(true);
-  const { serverUrl } = useContext(AuthDataContext);
-  const userData = useSelector((state) => state.user.userData);
+  const { userData, serverUrl, logout } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     // Check if user is advisor
-    if (!userData || userData.role !== "advisor") {
-      navigate("/login");
-      return;
-    }
+    // if (!userData || userData.role !== "advisor") {
+    //   toast.error("User is not an advisor");
+    //   navigate("/login");
+    //   return;
+    // }else{
+    //   toast.success("User is an advisor");
+    //   console.log(userData);
+    // }
 
     // Check if advisor is verified
-    if (!userData.isVerified) {
-      toast.error("Please complete your onboarding process to access the dashboard");
-      navigate("/advisor/onboarding");
-      return;
-    }
+    // if (!userData.isVerified) {
+    //   toast.error("Please complete your onboarding process to access the dashboard");
+    //   navigate("/advisor/onboarding");
+    //   return;
+    // }
 
     // Initialize Socket.io
     const socket = initializeSocket();
@@ -68,7 +70,7 @@ const AdvisorDashboard = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.post(`${serverUrl}/api/auth/logout`, {}, { withCredentials: true });
+      await logout();
       navigate("/login");
     } catch (error) {
       console.error("Logout error:", error);

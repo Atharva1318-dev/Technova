@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { AuthDataContext } from "../../context/AuthDataContext";
+import { useAuth } from "../../context/AuthContext";
 import { toast } from "react-toastify";
 import { TrendingUp, TrendingDown, X as CloseIcon } from "lucide-react";
 import { onPaperTradeUpdate } from "../../utils/socket";
@@ -9,7 +9,7 @@ const PaperTradingPortfolio = ({ onRefresh }) => {
   const [paperTrades, setPaperTrades] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("active"); // active or closed
-  const { serverUrl } = useContext(AuthDataContext);
+  const { serverUrl } = useAuth();
 
   useEffect(() => {
     fetchPaperTrades();

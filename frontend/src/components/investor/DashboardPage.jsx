@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { AuthDataContext } from "../../context/AuthDataContext";
+import { useAuth } from "../../context/AuthContext";
 import { toast } from "react-toastify";
 import { TrendingUp, TrendingDown, Award, Target, Shield, ChevronLeft, ChevronRight } from "lucide-react";
 import { onNewSignal, onSignalClosed } from "../../utils/socket";
@@ -10,7 +10,7 @@ const DashboardPage = () => {
   const [topAdvisors, setTopAdvisors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentAdvisorIndex, setCurrentAdvisorIndex] = useState(0);
-  const { serverUrl } = useContext(AuthDataContext);
+  const { serverUrl } = useAuth();
 
   useEffect(() => {
     fetchSignals();

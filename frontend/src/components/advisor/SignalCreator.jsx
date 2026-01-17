@@ -1,7 +1,7 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import { X, Search, TrendingUp, TrendingDown } from "lucide-react";
 import axios from "axios";
-import { AuthDataContext } from "../../context/AuthDataContext";
+import { useAuth } from "../../context/AuthContext";
 import { toast } from "react-toastify";
 
 const SignalCreator = ({ onClose, onSuccess }) => {
@@ -17,7 +17,7 @@ const SignalCreator = ({ onClose, onSuccess }) => {
     notes: "",
   });
   const [loading, setLoading] = useState(false);
-  const { serverUrl } = useContext(AuthDataContext);
+  const { serverUrl } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
