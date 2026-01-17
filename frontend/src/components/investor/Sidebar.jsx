@@ -81,10 +81,10 @@ const Sidebar = ({ activePage, setActivePage, userData, onLogout }) => {
         {/* Portfolio Value */}
         <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-2">
           <div className="flex items-center justify-between mb-1">
-            <span className="text-xs text-gray-400">Portfolio</span>
-            <span className="text-xs font-bold text-green-400">
-              ₹{userData?.portfolioValue?.toLocaleString('en-IN') || "0"}
-            </span>
+            {/* <span className="text-xs text-gray-400">Portfolio</span> */}
+            {/* <span className="text-xs font-bold text-green-400">
+              ₹{userData?.portfolioValue?.toLocaleString('en-IN') || "0"} */}
+            {/* </span> */}
           </div>
           <div className="w-full bg-gray-800 rounded-full h-1">
             <div

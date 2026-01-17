@@ -212,12 +212,12 @@ const DiscoveryFeed = () => {
               </div>
 
               {/* Action */}
-              <button
+              {/* <button
                 onClick={() => handleFollow(signal.tradeId)}
                 className="ml-6 px-5 py-2 bg-[#0077b6] text-white rounded-lg font-semibold hover:bg-[#005a8d] transition"
               >
                 Follow
-              </button>
+              </button> */}
             </div>
           ))}
         </div>
