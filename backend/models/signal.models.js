@@ -42,7 +42,7 @@ const signalSchema = new Schema(
     riskLevel: { 
       type: String, 
       enum: ["low", "medium", "high"], 
-      required: true 
+      default: "medium" // Auto-calculated in pre-save hook
     },
     status: { 
       type: String, 
