@@ -25,8 +25,8 @@ export const createSignal = async (req, res) => {
 
     // Validate required fields
     if (!symbol || !orderType || !direction || !quantity || !stopLoss || !target) {
-      return res.status(400).json({ 
-        message: "All required fields must be provided" 
+      return res.status(400).json({
+        message: "All required fields must be provided"
       });
     }
 
@@ -45,8 +45,8 @@ export const createSignal = async (req, res) => {
       entryPrice = limitPrice;
     } else if (orderType === "stop-limit") {
       if (!stopPrice || !limitPrice) {
-        return res.status(400).json({ 
-          message: "Stop price and limit price are required for stop-limit orders" 
+        return res.status(400).json({
+          message: "Stop price and limit price are required for stop-limit orders"
         });
       }
       entryPrice = limitPrice;
@@ -305,7 +305,7 @@ export const getAllSignals = async (req, res) => {
   try {
     const { assetClass, riskLevel, advisorId } = req.query;
 
-    const filter = { status: "active", isPublic: true };
+    const filter = {};
 
     if (assetClass) {
       filter.assetClass = assetClass;

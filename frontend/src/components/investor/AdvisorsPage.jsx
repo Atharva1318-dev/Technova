@@ -70,11 +70,11 @@ const AdvisorsPage = () => {
         <select
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#0077b6]"
+          className="bg-white text-black px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#0077b6]"
         >
-          <option value="trustScore">Sort by Trust Score</option>
-          <option value="winRate">Sort by Win Rate</option>
-          <option value="subscribers">Sort by Subscribers</option>
+          <option value="trustScore" className="text-black">Sort by Trust Score</option>
+          <option value="winRate" className="text-black">Sort by Win Rate</option>
+          <option value="subscribers" className="text-black">Sort by Subscribers</option>
         </select>
       </div>
 
