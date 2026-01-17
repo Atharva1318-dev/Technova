@@ -8,6 +8,14 @@ const userSchema = new Schema(
     email: { type: String, required: true, unique: true },
     password: { type: String },
     isGoogleAuth: { type: Boolean, default: false },
+    role:{
+      type:String,
+      enum:["advisor","investor"],
+      default:"investor"
+    },
+    phone:{
+      type:String
+    }
   },
   { timestamps: true }
 );
