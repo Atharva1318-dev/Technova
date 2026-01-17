@@ -1,3 +1,4 @@
+
 import twilio from "twilio";
 import dotenv from "dotenv";
 dotenv.config();
@@ -72,10 +73,10 @@ export const sendOTP = async (phoneNumber, otp) => {
       to,
       body: `Your Technova verification code is: ${otp}. Valid for 10 minutes.`,
     });
-    console.log(`WhatsApp OTP sent successfully. SID: ${message.sid}`);
+    console.log(`✅ WhatsApp OTP sent. SID: ${message.sid}`);
     return { success: true, sid: message.sid };
   } catch (error) {
-    console.error("Error sending WhatsApp OTP:", error);
+    console.error("❌ Error sending WhatsApp OTP:", error);
     if (error.code === 21660) {
       throw new Error("Twilio WhatsApp sender mismatch. Ensure recipient has joined sandbox (send 'join <code>' to +14155238886).");
     }
@@ -83,37 +84,10 @@ export const sendOTP = async (phoneNumber, otp) => {
   }
 };
 
-// Send SMS notification (requires valid Twilio SMS number)
-export const sendNotification = async (phoneNumber, message) => {
-  const normalized = normalizePhone(phoneNumber);
-  const to = normalized;
-  // Note: SMS will fail with 21660 unless you have a valid TWILIO_PHONE_NUMBER
-  // For now, use WhatsApp or mock mode
-  if (!client) {
-    console.log(`[MOCK SMS] Notification to ${to}: ${message}`);
-    return { success: true, mock: true };
-  }
-
-  try {
-    const sms = await client.messages.create({
-      body: message,
-      from: process.env.TWILIO_PHONE_NUMBER || "+14155238886", // Will fail if not owned by account
-      to,
-    });
-    console.log(`SMS notification sent. SID: ${sms.sid}`);
-    return { success: true, sid: sms.sid };
-  } catch (error) {
-    console.error("Error sending SMS notification:", error);
-    throw error;
-  }
-};
-
-
 export default {
   generateOTP,
   normalizePhone,
   storeOTP,
   verifyOTP,
   sendOTP,
-  sendNotification,
 };
