@@ -102,13 +102,12 @@ const tradeSchema = new Schema(
 );
 
 // Calculate risk-reward ratio before saving
-tradeSchema.pre("save", function (next) {
+tradeSchema.pre("save", function () {
   if (this.entryPrice && this.stopLoss && this.target) {
     const risk = Math.abs(this.entryPrice - this.stopLoss);
     const reward = Math.abs(this.target - this.entryPrice);
     this.riskRewardRatio = risk > 0 ? (reward / risk).toFixed(2) : 0;
   }
-  next();
 });
 
 const Trade = model("Trade", tradeSchema);

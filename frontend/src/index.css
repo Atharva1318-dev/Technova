@@ -120,6 +120,49 @@
   body {
     @apply bg-background text-foreground;
   }
+  
+  /* Fix input text visibility - ensure text is always visible */
+  input, textarea, select {
+    color: inherit !important;
+  }
+  
+  /* For dark backgrounds, ensure text is light */
+  input[class*="bg-neutral-950"], 
+  input[class*="bg-neutral-900"],
+  input[class*="bg-black"],
+  textarea[class*="bg-neutral-950"],
+  textarea[class*="bg-neutral-900"],
+  textarea[class*="bg-black"],
+  select[class*="bg-neutral-950"],
+  select[class*="bg-neutral-900"],
+  select[class*="bg-black"] {
+    color: white !important;
+  }
+  
+  /* For light backgrounds, ensure text is dark */
+  input[class*="bg-white"],
+  input[class*="bg-gray-"],
+  input[class*="bg-neutral-1"],
+  input[class*="bg-neutral-2"],
+  input[class*="bg-neutral-3"],
+  input[class*="bg-neutral-4"],
+  input[class*="bg-neutral-5"],
+  textarea[class*="bg-white"],
+  textarea[class*="bg-gray-"],
+  textarea[class*="bg-neutral-1"],
+  textarea[class*="bg-neutral-2"],
+  textarea[class*="bg-neutral-3"],
+  textarea[class*="bg-neutral-4"],
+  textarea[class*="bg-neutral-5"],
+  select[class*="bg-white"],
+  select[class*="bg-gray-"],
+  select[class*="bg-neutral-1"],
+  select[class*="bg-neutral-2"],
+  select[class*="bg-neutral-3"],
+  select[class*="bg-neutral-4"],
+  select[class*="bg-neutral-5"] {
+    color: #1a1a1a !important;
+  }
 }
 
 /* === FIX 1: Define the ripple animation keyframes === */
@@ -149,4 +192,43 @@
   /* CRITICAL: Use 'normal' or 'screen' instead of 'overlay' */
   /* Overlay makes light colors disappear on dark backgrounds */
   mix-blend-mode: normal !important;
+}
+
+/* === FIX 4: Input text color auto-adjustment === */
+/* This ensures input text is always visible regardless of background */
+@layer components {
+  /* Default input styling with proper contrast */
+  input:not([type="checkbox"]):not([type="radio"]),
+  textarea,
+  select {
+    @apply text-foreground;
+  }
+  
+  /* Override for inputs with explicit dark backgrounds */
+  .bg-neutral-950 input,
+  .bg-neutral-900 input,
+  .bg-black input,
+  input.bg-neutral-950,
+  input.bg-neutral-900,
+  input.bg-black,
+  .bg-neutral-950 textarea,
+  .bg-neutral-900 textarea,
+  .bg-black textarea,
+  textarea.bg-neutral-950,
+  textarea.bg-neutral-900,
+  textarea.bg-black,
+  .bg-neutral-950 select,
+  .bg-neutral-900 select,
+  .bg-black select,
+  select.bg-neutral-950,
+  select.bg-neutral-900,
+  select.bg-black {
+    @apply !text-white;
+  }
+  
+  /* Ensure placeholder is visible too */
+  input::placeholder,
+  textarea::placeholder {
+    opacity: 0.6;
+  }
 }

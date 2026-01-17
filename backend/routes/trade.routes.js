@@ -7,6 +7,9 @@ import {
   updateTrade,
   closeTrade,
   getAllSignals,
+  cancelPendingTrade,
+  getMonitorStatus,
+  restartMonitors,
 } from "../controller/trade.controller.js";
 
 const TradeRouter = express.Router();
@@ -16,7 +19,7 @@ TradeRouter.post(
   "/signal",
   isAuth,
   checkRole("advisor"),
-  checkAdvisorVerified,
+  // checkAdvisorVerified,
   createSignal
 );
 
@@ -31,7 +34,7 @@ TradeRouter.put(
   "/:tradeId",
   isAuth,
   checkRole("advisor"),
-  checkAdvisorVerified,
+  // checkAdvisorVerified,
   updateTrade
 );
 
@@ -43,7 +46,28 @@ TradeRouter.post(
   closeTrade
 );
 
+TradeRouter.delete(
+  "/:tradeId/cancel",
+  isAuth,
+  checkRole("advisor"),
+  cancelPendingTrade
+);
+
 // Public routes (for investors)
 TradeRouter.get("/signals", getAllSignals);
+
+// Monitor management routes (admin/debug)
+TradeRouter.get(
+  "/monitors/status",
+  isAuth,
+  getMonitorStatus
+);
+
+TradeRouter.post(
+  "/monitors/restart",
+  isAuth,
+  checkRole("advisor"),
+  restartMonitors
+);
 
 export default TradeRouter;

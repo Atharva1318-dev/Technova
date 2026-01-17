@@ -34,7 +34,7 @@ const AdvisorHistoryPage = () => {
     try {
       setLoading(true);
       const [tradesRes, statsRes] = await Promise.all([
-        axios.get(`${serverUrl}/api/advisor/trades/history`, { withCredentials: true }),
+        axios.get(`${serverUrl}/api/trade/advisor/trades?status=closed`, { withCredentials: true }),
         axios.get(`${serverUrl}/api/advisor/dashboard/stats`, { withCredentials: true })
       ]);
       

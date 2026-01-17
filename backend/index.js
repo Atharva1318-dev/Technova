@@ -13,7 +13,9 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import { initializeSocket } from "./services/socket.service.js";
 import initTrustScoreCron from "./cron/trustScore.cron.js";
+import MonitorManager from "./services/tradeMonitor.service.js";
 import AINewsRouter from "./routes/aiNews.routes.js";
+
 dotenv.config();
 
 const app = express();
@@ -69,8 +71,16 @@ app.get("/", (req, res) => {
 initTrustScoreCron();
 
 // Start server
-server.listen(PORT, () => {
+server.listen(PORT, async () => {
   console.log(`🚀 Server is running on port ${PORT}`);
   console.log(`📡 Socket.io is ready for real-time connections`);
   console.log(`⏰ Trust score cron job is scheduled`);
+  
+  // Restart monitors for all active and pending trades
+  try {
+    const monitorCount = await MonitorManager.restartAllMonitors();
+    console.log(`🔄 Restarted ${monitorCount} trade monitors`);
+  } catch (error) {
+    console.error("⚠️  Failed to restart monitors:", error.message);
+  }
 });

@@ -106,6 +106,18 @@ export const getPendingTrades = async (advisorId = null) => {
   return data;
 };
 
+export const deletePendingTrade = async (tradeId) => {
+  if (!supabase) throw new Error("Supabase not configured");
+  
+  const { error } = await supabase
+    .from("pending_trades")
+    .delete()
+    .eq("trade_id", tradeId);
+  
+  if (error) throw error;
+  return true;
+};
+
 export const movePendingToActive = async (tradeId) => {
   if (!supabase) throw new Error("Supabase not configured");
   

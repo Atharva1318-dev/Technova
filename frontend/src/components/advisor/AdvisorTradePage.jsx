@@ -426,7 +426,7 @@ const AdvisorTradePage = () => {
   const fetchActiveTrades = async () => {
     try {
       const response = await axios.get(
-        `${serverUrl}/api/advisor/trades?status=active`,
+        `${serverUrl}/api/trade/advisor/trades?status=active`,
         { withCredentials: true }
       );
       setActiveTrades(response.data.trades || []);
@@ -445,7 +445,7 @@ const AdvisorTradePage = () => {
 
     try {
       await axios.post(
-        `${serverUrl}/api/advisor/signal/create`,
+        `${serverUrl}/api/trade/signal`,
         {
           ...signalForm,
           orderType: "market",
@@ -478,7 +478,7 @@ const AdvisorTradePage = () => {
   const handleEditTrade = async (tradeId, updates) => {
     try {
       await axios.put(
-        `${serverUrl}/api/advisor/trade/${tradeId}`,
+        `${serverUrl}/api/trade/${tradeId}`,
         updates,
         { withCredentials: true }
       );

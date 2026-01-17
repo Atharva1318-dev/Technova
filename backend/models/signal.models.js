@@ -71,7 +71,7 @@ const signalSchema = new Schema(
 );
 
 // Auto-calculate risk level based on stop loss distance
-signalSchema.pre("save", function (next) {
+signalSchema.pre("save", function () {
   if (this.entryPrice && this.stopLoss) {
     const slPercentage = Math.abs((this.entryPrice - this.stopLoss) / this.entryPrice) * 100;
     if (slPercentage <= 2) {
@@ -82,7 +82,6 @@ signalSchema.pre("save", function (next) {
       this.riskLevel = "high";
     }
   }
-  next();
 });
 
 const Signal = model("Signal", signalSchema);

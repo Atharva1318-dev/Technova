@@ -2,8 +2,11 @@ import axios from "axios";
 import dotenv from "dotenv";
 dotenv.config();
 
-const MARKET_DATA_API_KEY = process.env.MARKET_DATA_API_KEY;
-const MARKET_DATA_API_URL = process.env.MARKET_DATA_API_URL || "https://api.example.com";
+// const MARKET_DATA_API_KEY = process.env.MARKET_DATA_API_KEY;
+// const MARKET_DATA_API_URL = process.env.MARKET_DATA_API_URL || "https://api.example.com";
+
+const UPSTOX_BASE_URL = "https://api.upstox.com/v3";
+const UPSTOX_ACCESS_TOKEN = process.env.UPSTOX_ACCESS_TOKEN;
 
 // Mock market data for development
 const mockPrices = {
@@ -15,26 +18,71 @@ const mockPrices = {
 };
 
 // Fetch live price for a symbol
+// export const getLivePrice = async (symbol) => {
+//   try {
+//     // In production, replace with actual API call
+//     if (!MARKET_DATA_API_KEY) {
+//       console.log(`[MOCK] Fetching price for ${symbol}`);
+//       const basePrice = mockPrices[symbol.split(" ")[0]] || 100;
+//       const randomVariation = (Math.random() - 0.5) * 10;
+//       return basePrice + randomVariation;
+//     }
+
+//     // Example API call (replace with actual market data provider)
+//     const response = await axios.get(`${MARKET_DATA_API_URL}/quote`, {
+//       params: { symbol, apikey: MARKET_DATA_API_KEY },
+//     });
+
+//     return response.data.price;
+//   } catch (error) {
+//     console.error("Error fetching live price:", error.message);
+//     // Fallback to mock data
+//     const basePrice = mockPrices[symbol.split(" ")[0]] || 100;
+//     return basePrice + (Math.random() - 0.5) * 10;
+//   }
+// };
+
 export const getLivePrice = async (symbol) => {
   try {
-    // In production, replace with actual API call
-    if (!MARKET_DATA_API_KEY) {
+    // Fallback mock logic (useful for local/dev)
+    if (!UPSTOX_ACCESS_TOKEN) {
       console.log(`[MOCK] Fetching price for ${symbol}`);
-      const basePrice = mockPrices[symbol.split(" ")[0]] || 100;
-      const randomVariation = (Math.random() - 0.5) * 10;
-      return basePrice + randomVariation;
+      const basePrice = mockPrices[symbol.split("|")[0]] || 100;
+      return basePrice + (Math.random() - 0.5) * 10;
     }
 
-    // Example API call (replace with actual market data provider)
-    const response = await axios.get(`${MARKET_DATA_API_URL}/quote`, {
-      params: { symbol, apikey: MARKET_DATA_API_KEY },
+    // Get today's date in YYYY-MM-DD
+    const today = new Date().toISOString().split("T")[0];
+
+    const url = `${UPSTOX_BASE_URL}/historical-candle/${encodeURIComponent(
+      symbol
+    )}/minutes/1/${today}/${today}`;
+
+    const response = await axios.get(url, {
+      headers: {
+        Authorization: `Bearer ${UPSTOX_ACCESS_TOKEN}`,
+        Accept: "application/json",
+      },
     });
 
-    return response.data.price;
+    const candles = response.data?.data?.candles;
+
+    if (!candles || candles.length === 0) {
+      throw new Error("No candle data received");
+    }
+
+    // Last candle → latest price
+    const latestCandle = candles[candles.length - 1];
+
+    // Candle format: [timestamp, open, high, low, close, volume]
+    const closePrice = latestCandle[4];
+
+    return closePrice;
   } catch (error) {
     console.error("Error fetching live price:", error.message);
+
     // Fallback to mock data
-    const basePrice = mockPrices[symbol.split(" ")[0]] || 100;
+    const basePrice = mockPrices[symbol.split("|")[0]] || 100;
     return basePrice + (Math.random() - 0.5) * 10;
   }
 };

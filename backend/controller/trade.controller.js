@@ -5,6 +5,7 @@ import { getLivePrice, parseSymbol } from "../services/marketData.service.js";
 import { createPendingTrade, createActiveTrade, getActiveTrades, updateActiveTrade, deleteActiveTrade } from "../services/supabase.service.js";
 import { emitNewSignal, emitTradeUpdate, emitTradeClosed } from "../services/socket.service.js";
 import { writeTradeToBlockchain } from "../services/solana.service.js";
+import MonitorManager from "../services/tradeMonitor.service.js";
 
 // Create a new signal/trade
 export const createSignal = async (req, res) => {
@@ -115,6 +116,9 @@ export const createSignal = async (req, res) => {
       assetClass,
     });
 
+    // Start monitoring the trade
+    MonitorManager.addMonitor(trade);
+
     return res.status(201).json({
       message: "Signal created successfully",
       trade,
@@ -176,6 +180,12 @@ export const updateTrade = async (req, res) => {
     // Update in Supabase
     await updateActiveTrade(tradeId, {
       stop_loss: trade.stopLoss,
+      target: trade.target,
+    });
+
+    // Update the monitor with new values
+    MonitorManager.updateMonitor(tradeId, {
+      stopLoss: trade.stopLoss,
       target: trade.target,
     });
 
@@ -274,6 +284,9 @@ export const closeTrade = async (req, res) => {
       },
     });
 
+    // Stop monitoring the trade
+    MonitorManager.removeMonitor(tradeId);
+
     // Emit real-time update
     emitTradeClosed(advisorId, trade);
 
@@ -316,10 +329,85 @@ export const getAllSignals = async (req, res) => {
   }
 };
 
+// Cancel a pending trade
+export const cancelPendingTrade = async (req, res) => {
+  try {
+    const advisorId = req.userId;
+    const { tradeId } = req.params;
+
+    const trade = await Trade.findOne({ _id: tradeId, advisorId });
+
+    if (!trade) {
+      return res.status(404).json({ message: "Trade not found" });
+    }
+
+    if (trade.status !== "pending") {
+      return res.status(400).json({ message: "Only pending trades can be cancelled" });
+    }
+
+    // Update trade status
+    trade.status = "cancelled";
+    await trade.save();
+
+    // Update signal
+    await Signal.findOneAndUpdate(
+      { tradeId: trade._id },
+      { status: "cancelled" }
+    );
+
+    // Remove from Supabase pending trades
+    const { deletePendingTrade } = await import("../services/supabase.service.js");
+    try {
+      await deletePendingTrade(tradeId);
+    } catch (supabaseError) {
+      console.error("Supabase delete failed:", supabaseError.message);
+    }
+
+    // Stop monitoring
+    MonitorManager.removeMonitor(tradeId);
+
+    return res.status(200).json({
+      message: "Trade cancelled successfully",
+      trade,
+    });
+  } catch (error) {
+    console.error("Error in cancelPendingTrade:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// Get monitor status (for debugging/admin)
+export const getMonitorStatus = async (req, res) => {
+  try {
+    const stats = MonitorManager.getStats();
+    return res.status(200).json(stats);
+  } catch (error) {
+    console.error("Error in getMonitorStatus:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// Restart all monitors (useful after server restart)
+export const restartMonitors = async (req, res) => {
+  try {
+    const count = await MonitorManager.restartAllMonitors();
+    return res.status(200).json({
+      message: "Monitors restarted successfully",
+      count,
+    });
+  } catch (error) {
+    console.error("Error in restartMonitors:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 export default {
   createSignal,
   getAdvisorTrades,
   updateTrade,
   closeTrade,
   getAllSignals,
+  cancelPendingTrade,
+  getMonitorStatus,
+  restartMonitors,
 };
