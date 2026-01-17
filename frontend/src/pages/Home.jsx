@@ -16,6 +16,8 @@ import {
   Activity
 } from "lucide-react";
 
+import { TextGenerateEffect } from "../components/ui/text-generate-effect";
+
 // --- DATA: FEATURES ---
 const features = [
   {
@@ -89,19 +91,23 @@ export default function Home() {
     <div className="bg-neutral-950 text-white min-h-screen font-sans selection:bg-blue-500/30">
       <Navbar />
       {/* 2. HERO SECTION */}
-      <section className="relative w-full py-32 md:py-40 lg:py-48 overflow-hidden flex flex-col items-center text-center">
-        {/* <div className="absolute inset-0 z-0">
-          <BackgroundRippleEffect rows={14} cols={30} interactive={true} />
-        </div> */}
+      <section className="relative w-full py-32 md:py-40 lg:py-48 overflow-hidden flex flex-col items-center text-center bg-neutral-950">
+        <BackgroundRippleEffect
+          rows={14}
+          cols={30}
+          cellSize={56}
+          iteractive={true}
+        />
         {/* Ambient Background Glow */}
+        {/* 2️⃣ Ambient Glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-blue-900/20 blur-[120px] rounded-full pointer-events-none" />
 
         <div className="container px-4 md:px-6 relative z-10 space-y-8">
           {/* Badge */}
-          <div className="inline-flex items-center rounded-full border border-blue-500/20 bg-blue-500/10 px-3 py-1 text-sm font-medium text-blue-400 backdrop-blur-xl">
+          {/* <div className="inline-flex items-center rounded-full border border-blue-500/20 bg-blue-500/10 px-3 py-1 text-sm font-medium text-blue-400 backdrop-blur-xl">
             <span className="flex h-2 w-2 rounded-full bg-green-500 mr-2 animate-pulse"></span>
             Live on Solana Devnet
-          </div>
+          </div> */}
 
           {/* Main Headline */}
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter text-balance max-w-5xl mx-auto bg-clip-text text-transparent bg-gradient-to-b from-white via-white to-white/40">
@@ -109,10 +115,12 @@ export default function Home() {
             It’s a <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600">Smart Contract.</span>
           </h1>
 
-          {/* Subheadline */}
-          <p className="mx-auto max-w-[700px] text-neutral-400 text-lg md:text-xl leading-relaxed">
-            The world's first verified trading ecosystem where SEBI-registered advisors are tracked by Blockchain and analyzed by AI. No deleted trades. No fake screenshots.
-          </p>
+          <div className="mx-auto max-w-[700px]">
+            <TextGenerateEffect
+              words="The world's first verified trading ecosystem where SEBI-registered advisors are tracked by Blockchain and analyzed by AI. No deleted trades. No fake screenshots."
+              className="text-neutral-400 text-lg md:text-xl leading-relaxed"
+            />
+          </div>
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8">
@@ -253,10 +261,11 @@ export default function Home() {
         <div className="container mx-auto">
           <div className="relative rounded-[2.5rem] overflow-hidden border border-white/20 bg-neutral-950 shadow-2xl h-[500px] flex items-center justify-center">
 
-            <div className="absolute inset-0 z-0">
-              <BackgroundRippleEffect interactive={true} />
-            </div>
-
+            <BackgroundRippleEffect
+              rows={10}
+              cols={50}
+              cellSize={56}
+            />
             {/* Content Overlay */}
             <div className="relative z-10 text-center max-w-4xl mx-auto px-6">
               <h2 className="text-4xl md:text-6xl font-bold tracking-tight text-white mb-6">

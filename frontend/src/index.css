@@ -114,10 +114,39 @@
 }
 
 @layer base {
-  * {
+  *:not(.cell) {
     @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* === FIX 1: Define the ripple animation keyframes === */
+@keyframes cell-ripple {
+  0% {
+    background-color: transparent;
+  }
+  50% {
+    /* Set ripple color: Blue-ish for Technova theme */
+    background-color: rgba(59, 130, 246, 0.2);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+/* === FIX 2: Create the utility class for the animation === */
+.animate-cell-ripple {
+  animation: cell-ripple var(--duration) linear forwards var(--delay);
+}
+
+/* === FIX 3: Update .cell to handle dark mode visibility === */
+.cell {
+  /* Ensure border is visible */
+  border-color: rgba(255, 255, 255, 0.1);
+
+  /* CRITICAL: Use 'normal' or 'screen' instead of 'overlay' */
+  /* Overlay makes light colors disappear on dark backgrounds */
+  mix-blend-mode: normal !important;
 }
