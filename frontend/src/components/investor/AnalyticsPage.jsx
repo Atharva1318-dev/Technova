@@ -1,414 +1,254 @@
 import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { AuthDataContext } from "../../context/AuthDataContext";
-import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
-import { TrendingUp, Award, Target, Calendar, RefreshCw } from "lucide-react";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from "recharts";
+import { RefreshCw } from "lucide-react";
 
 const AnalyticsPage = () => {
-  const [summary, setSummary] = useState(null);
-  const [paperTrades, setPaperTrades] = useState([]);
-  const [loading, setLoading] = useState(true);
   const { serverUrl } = useContext(AuthDataContext);
-  const [followedSignals, setFollowedSignals] = useState([]);
 
+  // 🔹 ONLY dynamic state
+  const [followedSignals, setFollowedSignals] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  /* ================= STATIC DEMO DATA ================= */
+
+  const staticSummary = {
+    totalTrades: 24,
+    winningTrades: 15,
+    losingTrades: 9,
+    winRate: 62.5,
+    totalProfit: 48250,
+    totalLoss: 19300,
+  };
+
+  const staticPaperTrades = [
+    { profitLoss: 5200 },
+    { profitLoss: -1800 },
+    { profitLoss: 7600 },
+    { profitLoss: -2400 },
+    { profitLoss: 4300 },
+  ];
+
+  const staticMonthlyData = [
+    { month: "Jan", profit: 12000, loss: 4000 },
+    { month: "Feb", profit: 15000, loss: 6200 },
+    { month: "Mar", profit: 9800, loss: 3000 },
+    { month: "Apr", profit: 16450, loss: 5100 },
+  ];
+
+  /* ================= FETCH FOLLOWED SIGNALS ================= */
+
+  const fetchSignals = async () => {
+    try {
+      const res = await axios.get(
+        `${serverUrl}/api/investor/followed-advisors/signals`,
+        { withCredentials: true }
+      );
+      setFollowedSignals(res.data.signals || []);
+    } catch (error) {
+      console.error("Error fetching followed signals:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    fetchData();
+    fetchSignals();
   }, []);
-
-  const fetchData = async () => {
-  try {
-    const [summaryRes, tradesRes, signalsRes] = await Promise.all([
-      axios.get(`${serverUrl}/api/investor/portfolio/summary`, { withCredentials: true }),
-      axios.get(`${serverUrl}/api/investor/paper-trades?status=closed`, { withCredentials: true }),
-      axios.get(`${serverUrl}/api/investor/followed-advisors/signals`, { withCredentials: true }), // ✅ NEW
-    ]);
-
-    setSummary(summaryRes.data.summary);
-    setPaperTrades(tradesRes.data.paperTrades);
-    setFollowedSignals(signalsRes.data.signals); // ✅ NEW
-  } catch (error) {
-    console.error("Error fetching analytics:", error);
-  } finally {
-    setLoading(false);
-  }
-};
-
 
   const handleRefresh = () => {
     setLoading(true);
-    fetchData();
+    fetchSignals();
   };
-
-  // Prepare chart data
-  const performanceData = paperTrades.slice(0, 10).reverse().map((trade, index) => ({
-    name: `Trade ${index + 1}`,
-    pnl: trade.profitLoss,
-    symbol: trade.symbol,
-  }));
-
-  const monthlyData = [
-    { month: "Jan", profit: 5000, loss: 2000 },
-    { month: "Feb", profit: 7000, loss: 3000 },
-    { month: "Mar", profit: 6000, loss: 2500 },
-    { month: "Apr", profit: 8000, loss: 3500 },
-  ];
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96 bg-white">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0056b3]"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 bg-white">
-      {/* Header */}
+    <div className="space-y-6 bg-white text-gray-900 p-4">
+
+      {/* HEADER */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Analytics</h1>
-          <p className="text-gray-700 mt-1">Detailed performance insights</p>
+          <p className="text-gray-600 mt-1">Detailed performance insights</p>
         </div>
         <button
           onClick={handleRefresh}
-          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#0056b3] to-[#6d28d9] text-white rounded-lg hover:from-[#004996] hover:to-[#5b21b6] transition font-semibold shadow-md"
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold"
         >
           <RefreshCw className="w-4 h-4" />
           Refresh
         </button>
       </div>
 
-      {/* Key Metrics */}
+      {/* METRICS */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-300 p-6 shadow-sm">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-gradient-to-br from-blue-100 to-blue-50 rounded-lg border border-blue-200">
-              <TrendingUp className="w-6 h-6 text-blue-700" />
-            </div>
-            <div>
-              <p className="text-xs text-gray-600 font-medium">Total Trades</p>
-              <p className="text-2xl font-bold text-gray-900">{summary?.totalTrades || 0}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-300 p-6 shadow-sm">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-gradient-to-br from-emerald-100 to-emerald-50 rounded-lg border border-emerald-200">
-              <Target className="w-6 h-6 text-emerald-700" />
-            </div>
-            <div>
-              <p className="text-xs text-gray-600 font-medium">Winning Trades</p>
-              <p className="text-2xl font-bold text-emerald-700">{summary?.winningTrades || 0}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-300 p-6 shadow-sm">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-gradient-to-br from-rose-100 to-rose-50 rounded-lg border border-rose-200">
-              <TrendingUp className="w-6 h-6 text-rose-700" />
-            </div>
-            <div>
-              <p className="text-xs text-gray-600 font-medium">Losing Trades</p>
-              <p className="text-2xl font-bold text-rose-700">{summary?.losingTrades || 0}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-300 p-6 shadow-sm">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-gradient-to-br from-yellow-100 to-yellow-50 rounded-lg border border-yellow-200">
-              <Award className="w-6 h-6 text-yellow-700" />
-            </div>
-            <div>
-              <p className="text-xs text-gray-600 font-medium">Win Rate</p>
-              <p className="text-2xl font-bold text-gray-900">{summary?.winRate.toFixed(1) || 0}%</p>
-            </div>
-          </div>
-        </div>
+        <Metric title="Total Trades" value={staticSummary.totalTrades} />
+        <Metric title="Winning Trades" value={staticSummary.winningTrades} green />
+        <Metric title="Losing Trades" value={staticSummary.losingTrades} red />
+        <Metric title="Win Rate" value={`${staticSummary.winRate}%`} />
       </div>
 
-      {/* Trade Performance Chart
-      <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-300 p-6 shadow-sm">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-bold text-gray-900">Recent Trade Performance</h3>
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <Calendar className="w-4 h-4" />
-            <span>Last 10 Trades</span>
-          </div>
-        </div>
-        {performanceData.length > 0 ? (
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={performanceData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis 
-                dataKey="name" 
-                stroke="#4b5563" 
-                style={{ fontSize: '12px' }} 
-                tick={{ fill: '#6b7280' }}
-              />
-              <YAxis 
-                stroke="#4b5563" 
-                style={{ fontSize: '12px' }}
-                tick={{ fill: '#6b7280' }}
-              />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: '#fff',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '8px',
-                  boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-                }}
-                labelStyle={{ color: '#1f2937', fontWeight: 'bold' }}
-                formatter={(value) => [`₹${value.toFixed(2)}`, 'P&L']}
-              />
-              <Bar 
-                dataKey="pnl" 
-                fill="#0056b3" 
-                radius={[8, 8, 0, 0]} 
-                name="Profit/Loss"
-              />
-            </BarChart>
-          </ResponsiveContainer>
+      {/* FOLLOWED SIGNALS (DYNAMIC) */}
+      <div className="bg-white border border-gray-300 rounded-2xl p-6 shadow-sm text-gray-900">
+        <h3 className="text-lg font-bold mb-4 text-gray-900">
+          Signals from Advisors You Follow
+        </h3>
+
+        {followedSignals.length === 0 ? (
+          <p className="text-gray-600">
+            You are not following any advisors or no active signals available.
+          </p>
         ) : (
-          <div className="text-center py-12">
-            <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-300 p-8 max-w-md mx-auto">
-              <div className="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-gray-200">
-                <TrendingUp className="w-8 h-8 text-gray-400" />
+          <div className="space-y-3">
+            {followedSignals.map((signal) => (
+              <div
+                key={signal._id}
+                className="flex items-center gap-6 p-4 bg-gray-50 border border-gray-200 rounded-xl text-gray-900"
+              >
+                <div className="w-40">
+                  <p className="font-semibold">{signal.advisorId?.name}</p>
+                  <p className="text-xs text-gray-600">
+                    Trust {signal.advisorId?.trustScore || 0}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="font-bold">{signal.symbol}</p>
+                  <p className="text-xs text-gray-600 capitalize">
+                    {signal.assetClass}
+                  </p>
+                </div>
+
+                <span
+                  className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                    signal.direction === "buy"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-red-100 text-red-700"
+                  }`}
+                >
+                  {signal.direction.toUpperCase()}
+                </span>
+
+                <div className="ml-auto flex gap-6">
+                  <Price label="Entry" value={signal.entryPrice} />
+                  <Price label="SL" value={signal.stopLoss} red />
+                  <Price label="Target" value={signal.target} green />
+                </div>
               </div>
-              <p className="text-gray-600 font-medium">No trade data available yet</p>
-              <p className="text-sm text-gray-500 mt-1">Start paper trading to see your performance analytics</p>
-            </div>
+            ))}
           </div>
         )}
-      </div> */}
-            {/* Followed Advisors Signals */}
-<div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-300 p-6 shadow-sm">
-  <h3 className="text-lg font-bold text-gray-900 mb-4">
-    Signals from Advisors You Follow
-  </h3>
+      </div>
 
-  {followedSignals.length === 0 ? (
-    <p className="text-gray-600">
-      You are not following any advisors or no active signals available.
-    </p>
-  ) : (
-    <div className="space-y-3">
-      {followedSignals.map((signal) => (
-        <div
-          key={signal._id}
-          className="flex items-center gap-6 p-4 bg-white border border-gray-200 rounded-xl hover:shadow-md transition"
-        >
-          {/* Advisor */}
-          <div className="w-40">
-            <p className="font-semibold text-gray-900">
-              {signal.advisorId?.name}
-            </p>
-            <p className="text-xs text-gray-500">
-              Trust {signal.advisorId?.trustScore || 0}
-            </p>
-          </div>
-
-          {/* Symbol */}
-          <div>
-            <p className="font-bold text-gray-900">{signal.symbol}</p>
-            <p className="text-xs text-gray-500 capitalize">
-              {signal.assetClass}
-            </p>
-          </div>
-
-          {/* Direction */}
-          <span
-            className={`px-3 py-1 rounded-full text-sm font-semibold ${
-              signal.direction === "buy"
-                ? "bg-green-100 text-green-700"
-                : "bg-red-100 text-red-700"
-            }`}
-          >
-            {signal.direction.toUpperCase()}
-          </span>
-
-          {/* Prices */}
-          <div className="ml-auto flex gap-6">
-            <div>
-              <p className="text-xs text-gray-500">Entry</p>
-              <p className="font-semibold">₹{signal.entryPrice.toFixed(2)}</p>
-            </div>
-            <div>
-              <p className="text-xs text-gray-500">SL</p>
-              <p className="font-semibold text-red-600">
-                ₹{signal.stopLoss.toFixed(2)}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs text-gray-500">Target</p>
-              <p className="font-semibold text-green-600">
-                ₹{signal.target.toFixed(2)}
-              </p>
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  )}
-</div>
-
-      {/* Monthly Profit/Loss */}
-      <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-300 p-6 shadow-sm">
-        <h3 className="text-lg font-bold text-gray-900 mb-4">Monthly Profit & Loss</h3>
+      {/* MONTHLY P/L */}
+      <div className="bg-white border border-gray-300 rounded-2xl p-6 shadow-sm text-gray-900">
+        <h3 className="text-lg font-bold mb-4">Monthly Profit & Loss</h3>
         <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={monthlyData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-            <XAxis 
-              dataKey="month" 
-              stroke="#4b5563" 
-              style={{ fontSize: '12px' }}
-              tick={{ fill: '#6b7280' }}
-            />
-            <YAxis 
-              stroke="#4b5563" 
-              style={{ fontSize: '12px' }}
-              tick={{ fill: '#6b7280' }}
-            />
-            <Tooltip
-              contentStyle={{
-                backgroundColor: '#fff',
-                border: '1px solid #d1d5db',
-                borderRadius: '8px',
-                boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-              }}
-              labelStyle={{ color: '#1f2937', fontWeight: 'bold' }}
-              formatter={(value) => [`₹${value.toFixed(2)}`, '']}
-            />
+          <LineChart data={staticMonthlyData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="month" />
+            <YAxis />
+            <Tooltip />
             <Legend />
-            <Line 
-              type="monotone" 
-              dataKey="profit" 
-              stroke="#10b981" 
-              strokeWidth={2} 
-              name="Profit"
-              dot={{ r: 4, fill: '#10b981' }}
-              activeDot={{ r: 6, fill: '#10b981' }}
-            />
-            <Line 
-              type="monotone" 
-              dataKey="loss" 
-              stroke="#ef4444" 
-              strokeWidth={2} 
-              name="Loss"
-              dot={{ r: 4, fill: '#ef4444' }}
-              activeDot={{ r: 6, fill: '#ef4444' }}
-            />
+            <Line type="monotone" dataKey="profit" stroke="#10b981" />
+            <Line type="monotone" dataKey="loss" stroke="#ef4444" />
           </LineChart>
         </ResponsiveContainer>
       </div>
 
-      {/* Performance Summary */}
+      {/* PERFORMANCE SUMMARY */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-gradient-to-r from-emerald-100 to-emerald-50 rounded-2xl p-6 border border-emerald-200 shadow-sm">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 bg-gradient-to-br from-emerald-200 to-emerald-100 rounded-lg border border-emerald-300">
-              <TrendingUp className="w-6 h-6 text-emerald-800" />
-            </div>
-            <h3 className="text-lg font-bold text-emerald-900">Total Profit</h3>
-          </div>
-          <p className="text-4xl font-bold text-emerald-700 mb-2">
-            ₹{summary?.totalProfit.toFixed(2) || 0}
-          </p>
-          <p className="text-sm text-emerald-800 font-medium">
-            From {summary?.winningTrades || 0} winning trades
-          </p>
-          <div className="mt-4 pt-4 border-t border-emerald-300">
-            <p className="text-xs text-emerald-700">
-              Average profit per winning trade: ₹{
-                summary?.winningTrades > 0 
-                  ? (summary.totalProfit / summary.winningTrades).toFixed(2)
-                  : "0.00"
-              }
-            </p>
-          </div>
-        </div>
-
-        <div className="bg-gradient-to-r from-rose-100 to-rose-50 rounded-2xl p-6 border border-rose-200 shadow-sm">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 bg-gradient-to-br from-rose-200 to-rose-100 rounded-lg border border-rose-300">
-              <TrendingUp className="w-6 h-6 text-rose-800" />
-            </div>
-            <h3 className="text-lg font-bold text-rose-900">Total Loss</h3>
-          </div>
-          <p className="text-4xl font-bold text-rose-700 mb-2">
-            ₹{summary?.totalLoss.toFixed(2) || 0}
-          </p>
-          <p className="text-sm text-rose-800 font-medium">
-            From {summary?.losingTrades || 0} losing trades
-          </p>
-          <div className="mt-4 pt-4 border-t border-rose-300">
-            <p className="text-xs text-rose-700">
-              Average loss per losing trade: ₹{
-                summary?.losingTrades > 0 
-                  ? (summary.totalLoss / summary.losingTrades).toFixed(2)
-                  : "0.00"
-              }
-            </p>
-          </div>
-        </div>
+        <SummaryCard
+          title="Total Profit"
+          value={`₹${staticSummary.totalProfit}`}
+          green
+        />
+        <SummaryCard
+          title="Total Loss"
+          value={`₹${staticSummary.totalLoss}`}
+          red
+        />
       </div>
 
-      {/* Additional Insights */}
-      <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-300 p-6 shadow-sm">
-        <h3 className="text-lg font-bold text-gray-900 mb-4">Performance Insights</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-gradient-to-br from-blue-50 to-white rounded-xl p-4 border border-blue-200">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="p-2 bg-gradient-to-br from-blue-100 to-blue-50 rounded-lg border border-blue-200">
-                <Target className="w-4 h-4 text-blue-700" />
-              </div>
-              <p className="text-sm font-medium text-gray-800">Best Trade</p>
-            </div>
-            <p className="text-xl font-bold text-gray-900">
-              {paperTrades.length > 0 ? (
-                `₹${Math.max(...paperTrades.map(t => t.profitLoss || 0)).toFixed(2)}`
-              ) : (
-                "₹0.00"
-              )}
-            </p>
-          </div>
-
-          <div className="bg-gradient-to-br from-rose-50 to-white rounded-xl p-4 border border-rose-200">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="p-2 bg-gradient-to-br from-rose-100 to-rose-50 rounded-lg border border-rose-200">
-                <TrendingUp className="w-4 h-4 text-rose-700" />
-              </div>
-              <p className="text-sm font-medium text-gray-800">Worst Trade</p>
-            </div>
-            <p className="text-xl font-bold text-gray-900">
-              {paperTrades.length > 0 ? (
-                `₹${Math.min(...paperTrades.map(t => t.profitLoss || 0)).toFixed(2)}`
-              ) : (
-                "₹0.00"
-              )}
-            </p>
-          </div>
-
-          <div className="bg-gradient-to-br from-violet-50 to-white rounded-xl p-4 border border-violet-200">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="p-2 bg-gradient-to-br from-violet-100 to-violet-50 rounded-lg border border-violet-200">
-                <Award className="w-4 h-4 text-violet-700" />
-              </div>
-              <p className="text-sm font-medium text-gray-800">Success Ratio</p>
-            </div>
-            <p className="text-xl font-bold text-gray-900">
-              {summary?.winRate ? summary.winRate.toFixed(1) : 0}%
-            </p>
-          </div>
-        </div>
+      {/* INSIGHTS */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Insight
+          title="Best Trade"
+          value={`₹${Math.max(...staticPaperTrades.map(t => t.profitLoss))}`}
+        />
+        <Insight
+          title="Worst Trade"
+          value={`₹${Math.min(...staticPaperTrades.map(t => t.profitLoss))}`}
+        />
+        <Insight title="Success Ratio" value={`${staticSummary.winRate}%`} />
       </div>
-
-
     </div>
   );
 };
+
+/* ================= REUSABLE COMPONENTS ================= */
+
+const Metric = ({ title, value, green, red }) => (
+  <div className="bg-white border border-gray-300 p-6 rounded-2xl shadow-sm text-gray-900">
+    <p className="text-xs text-gray-600">{title}</p>
+    <p
+      className={`text-2xl font-bold ${
+        green ? "text-green-700" : red ? "text-red-700" : "text-gray-900"
+      }`}
+    >
+      {value}
+    </p>
+  </div>
+);
+
+const SummaryCard = ({ title, value, green, red }) => (
+  <div className="bg-gray-50 border border-gray-300 p-6 rounded-2xl shadow-sm text-gray-900">
+    <h3 className="font-bold mb-2">{title}</h3>
+    <p
+      className={`text-4xl font-bold ${
+        green ? "text-green-700" : red ? "text-red-700" : ""
+      }`}
+    >
+      {value}
+    </p>
+  </div>
+);
+
+const Insight = ({ title, value }) => (
+  <div className="bg-white border border-gray-300 p-4 rounded-xl shadow-sm text-gray-900">
+    <p className="text-sm text-gray-600">{title}</p>
+    <p className="text-xl font-bold">{value}</p>
+  </div>
+);
+
+const Price = ({ label, value, red, green }) => (
+  <div>
+    <p className="text-xs text-gray-600">{label}</p>
+    <p
+      className={`font-semibold ${
+        red ? "text-red-600" : green ? "text-green-600" : "text-gray-900"
+      }`}
+    >
+      ₹{value?.toFixed(2)}
+    </p>
+  </div>
+);
 
 export default AnalyticsPage;
