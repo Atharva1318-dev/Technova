@@ -129,7 +129,7 @@
   }
   50% {
     /* Set ripple color: Blue-ish for Technova theme */
-    background-color: rgba(59, 130, 246, 0.2);
+    background-color: rgba(59, 130, 246, 0.275);
   }
   100% {
     background-color: transparent;
