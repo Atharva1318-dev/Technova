@@ -187,14 +187,52 @@ export const getDashboardStats = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
+    // Import Trade model to get active trades count
+    const Trade = (await import("../models/trade.models.js")).default;
+    
+    // Get active trades count
+    const activeTrades = await Trade.countDocuments({
+      advisorId: userId,
+      status: "active"
+    });
+
+    // Get won and lost trades count
+    const wonTrades = await Trade.countDocuments({
+      advisorId: userId,
+      status: "closed",
+      outcome: "profit"
+    });
+
+    const lostTrades = await Trade.countDocuments({
+      advisorId: userId,
+      status: "closed",
+      outcome: "loss"
+    });
+
+    // Calculate today's P&L (mock for now - you can implement actual logic)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const todayTrades = await Trade.find({
+      advisorId: userId,
+      status: "closed",
+      closedAt: { $gte: today }
+    }).select("profitLoss");
+
+    const todayPnL = todayTrades.reduce((sum, trade) => sum + (trade.profitLoss || 0), 0);
+
     const stats = {
       subscriberCount: user.subscriberCount || 0,
       totalTrades: user.totalTrades || 0,
+      activeTrades: activeTrades || 0,
+      wonTrades: wonTrades || 0,
+      lostTrades: lostTrades || 0,
       winRate: user.winRate || 0,
       trustScore: user.trustScore || 0,
       totalProfit: user.totalProfit || 0,
       totalLoss: user.totalLoss || 0,
       netProfitLoss: (user.totalProfit || 0) - (user.totalLoss || 0),
+      todayPnL: todayPnL || 0,
     };
 
     return res.status(200).json({ stats });
@@ -256,6 +294,113 @@ export const getAllAdvisors = async (req, res) => {
   }
 };
 
+// Get recent activity for advisor dashboard
+export const getRecentActivity = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const Trade = (await import("../models/trade.models.js")).default;
+    
+    // Get recent closed trades (last 10)
+    const recentTrades = await Trade.find({
+      advisorId: userId,
+      status: "closed"
+    })
+      .sort({ closedAt: -1 })
+      .limit(10)
+      .select("symbol direction outcome profitLoss closedReason closedAt");
+
+    // Build activity feed
+    const activities = [];
+
+    // Add trade outcomes
+    recentTrades.forEach((trade) => {
+      const isProfit = trade.profitLoss > 0;
+      const timeAgo = getTimeAgo(trade.closedAt);
+      
+      if (trade.closedReason === "target-hit") {
+        activities.push({
+          type: "target_hit",
+          title: `🎯 Target Hit - ${trade.symbol}`,
+          description: `${trade.direction.toUpperCase()} trade closed with ₹${Math.abs(trade.profitLoss).toFixed(2)} profit`,
+          time: timeAgo,
+          timestamp: trade.closedAt
+        });
+      } else if (trade.closedReason === "sl-hit") {
+        activities.push({
+          type: "sl_hit",
+          title: `🛑 Stop Loss Hit - ${trade.symbol}`,
+          description: `${trade.direction.toUpperCase()} trade closed with ₹${Math.abs(trade.profitLoss).toFixed(2)} loss`,
+          time: timeAgo,
+          timestamp: trade.closedAt
+        });
+      } else if (trade.closedReason === "manual") {
+        activities.push({
+          type: "trade_closed",
+          title: `${isProfit ? '✅' : '❌'} Trade Closed - ${trade.symbol}`,
+          description: `Manually closed with ${isProfit ? 'profit' : 'loss'} of ₹${Math.abs(trade.profitLoss).toFixed(2)}`,
+          time: timeAgo,
+          timestamp: trade.closedAt
+        });
+      }
+    });
+
+    // Mock new subscriber notifications (you can replace with actual subscriber tracking)
+    const recentDate = new Date();
+    recentDate.setHours(recentDate.getHours() - 2);
+    
+    // Add some mock subscriber activities
+    activities.push({
+      type: "new_subscriber",
+      title: "🎉 New Subscriber",
+      description: "A new investor started following your signals",
+      time: "2 hours ago",
+      timestamp: recentDate
+    });
+
+    // Mock trade acknowledgments
+    const ackDate = new Date();
+    ackDate.setHours(ackDate.getHours() - 1);
+    
+    activities.push({
+      type: "trade_acknowledged",
+      title: "📊 Signal Published",
+      description: "Your latest signal has been published to investors",
+      time: "1 hour ago",
+      timestamp: ackDate
+    });
+
+    // Sort all activities by timestamp (most recent first)
+    activities.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+    // Limit to 15 most recent activities
+    const limitedActivities = activities.slice(0, 15);
+
+    return res.status(200).json({ activities: limitedActivities });
+  } catch (error) {
+    console.error("Error in getRecentActivity:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// Helper function to calculate time ago
+function getTimeAgo(date) {
+  const now = new Date();
+  const diffMs = now - new Date(date);
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+
+  if (diffMins < 1) return "Just now";
+  if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
+  if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+  if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+  return new Date(date).toLocaleDateString('en-IN', { 
+    day: '2-digit', 
+    month: 'short', 
+    year: 'numeric' 
+  });
+}
+
 export default {
   sendPhoneOTP,
   verifyPhoneOTP,
@@ -264,4 +409,5 @@ export default {
   getDashboardStats,
   getAdvisorProfile,
   getAllAdvisors,
+  getRecentActivity,
 };

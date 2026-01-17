@@ -33,6 +33,8 @@ const AdvisorDashboardPage = () => {
         axios.get(`${serverUrl}/api/advisor/dashboard/stats`, { withCredentials: true }),
         axios.get(`${serverUrl}/api/advisor/recent-activity`, { withCredentials: true })
       ]);
+      console.log("statsRes.data.stats", statsRes.data.stats);
+      console.log(activityRes.data.activities);
       
       setStats(statsRes.data.stats);
       setRecentActivity(activityRes.data.activities || []);

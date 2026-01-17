@@ -10,6 +10,7 @@ import {
   getDashboardStats,
   getAdvisorProfile,
   getAllAdvisors,
+  getRecentActivity,
 } from "../controller/advisor.controller.js";
 
 const AdvisorRouter = express.Router();
@@ -38,6 +39,9 @@ AdvisorRouter.put(
 
 // Dashboard stats
 AdvisorRouter.get("/dashboard/stats", isAuth, checkRole("advisor"), getDashboardStats);
+
+// Recent activity
+AdvisorRouter.get("/recent-activity", isAuth, checkRole("advisor"), getRecentActivity);
 
 // Public routes
 AdvisorRouter.get("/profile/:advisorId", getAdvisorProfile);
