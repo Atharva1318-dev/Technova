@@ -1,3 +1,4 @@
+
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -41,12 +42,14 @@ const AdvisorOnboarding = () => {
 
     setLoading(true);
     try {
-      await axios.post(
+      const response = await axios.post(
         `${serverUrl}/api/advisor/send-otp`,
         { phone: formData.phone },
         { withCredentials: true }
       );
-      toast.success("OTP sent successfully");
+      toast.success("OTP sent to WhatsApp successfully");
+      // Store normalized phone from response
+      setFormData(prev => ({ ...prev, phone: response.data.phone }));
       setStep(2);
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to send OTP");
@@ -63,19 +66,16 @@ const AdvisorOnboarding = () => {
 
     setLoading(true);
     try {
-      await axios.post(
+      const response = await axios.post(
         `${serverUrl}/api/advisor/verify-otp`,
         { phone: formData.phone, otp: formData.otp },
         { withCredentials: true }
       );
       toast.success("Phone verified successfully");
 
-      // Update Redux state to set isVerified as true
-      if (userData) {
-        dispatch(setUserData({
-          ...userData,
-          isVerified: true
-        }));
+      // Update Redux with server-returned user (isVerified is now true)
+      if (response.data.user) {
+        dispatch(setUserData(response.data.user));
       }
 
       setStep(3);
@@ -100,13 +100,26 @@ const AdvisorOnboarding = () => {
       data.append("phone", formData.phone);
       data.append("sebiCertificate", sebiFile);
 
-      await axios.post(`${serverUrl}/api/advisor/onboarding`, data, {
-        withCredentials: true,
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const response = await axios.post(
+        `${serverUrl}/api/advisor/onboarding`,
+        data,
+        {
+          withCredentials: true,
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
 
       toast.success("Application submitted successfully!");
+
+      // Update Redux with server-returned user (verificationStatus is now pending)
+      if (response.data.user) {
+        dispatch(setUserData(response.data.user));
+      }
+
       setStep(4);
+      setTimeout(() => {
+        navigate("/advisor/dashboard");
+      }, 2000);
     } catch (error) {
       toast.error(error.response?.data?.message || "Submission failed");
     } finally {
@@ -121,19 +134,23 @@ const AdvisorOnboarding = () => {
         <div className="mb-8">
           <div className="flex items-center justify-between">
             {[1, 2, 3, 4].map((s) => (
-              <div key={s} className="flex items-center">
+              <div key={s} className="flex items-center flex-1">
                 <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${
+                  className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all ${
                     step >= s
                       ? "bg-black text-white"
                       : "bg-gray-200 text-gray-500"
                   }`}
                 >
-                  {s}
+                  {s <= step ? (
+                    s < 4 ? s : <CheckCircle className="w-6 h-6" />
+                  ) : (
+                    s
+                  )}
                 </div>
                 {s < 4 && (
                   <div
-                    className={`w-20 h-1 ${
+                    className={`flex-1 h-1 mx-2 transition-all ${
                       step > s ? "bg-black" : "bg-gray-200"
                     }`}
                   />
@@ -141,11 +158,11 @@ const AdvisorOnboarding = () => {
               </div>
             ))}
           </div>
-          <div className="flex justify-between mt-2 text-xs text-gray-600">
+          <div className="flex justify-between mt-4 text-xs text-gray-600">
             <span>Phone</span>
-            <span>Verify</span>
+            <span>Verify OTP</span>
             <span>Documents</span>
-            <span>Done</span>
+            <span>Complete</span>
           </div>
         </div>
 
@@ -154,27 +171,37 @@ const AdvisorOnboarding = () => {
           {step === 1 && (
             <div>
               <div className="flex items-center gap-3 mb-6">
-                <Phone className="w-6 h-6" />
+                <Phone className="w-6 h-6 text-black" />
                 <h2 className="text-2xl font-bold">Phone Verification</h2>
               </div>
               <p className="text-gray-600 mb-6">
-                Enter your phone number to receive an OTP for verification.
+                Enter your phone number to receive an OTP via WhatsApp for verification.
               </p>
-              <input
-                type="tel"
-                placeholder="Phone Number"
-                value={formData.phone}
-                onChange={(e) =>
-                  setFormData({ ...formData, phone: e.target.value })
-                }
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:border-black"
-              />
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Phone Number *
+                  </label>
+                  <input
+                    type="tel"
+                    placeholder="10 digit number (e.g., 8433943227)"
+                    value={formData.phone}
+                    onChange={(e) =>
+                      setFormData({ ...formData, phone: e.target.value })
+                    }
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-black focus:ring-1 focus:ring-black"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    OTP will be sent via WhatsApp
+                  </p>
+                </div>
+              </div>
               <button
                 onClick={handleSendOTP}
-                disabled={loading}
-                className="w-full py-3 bg-black text-white font-semibold rounded-lg hover:bg-gray-900 transition disabled:opacity-50"
+                disabled={loading || !formData.phone}
+                className="w-full py-3 bg-black text-white font-semibold rounded-lg hover:bg-gray-900 transition disabled:opacity-50 disabled:cursor-not-allowed mt-6"
               >
-                {loading ? "Sending..." : "Send OTP"}
+                {loading ? "Sending..." : "Send OTP via WhatsApp"}
               </button>
             </div>
           )}
@@ -182,36 +209,51 @@ const AdvisorOnboarding = () => {
           {step === 2 && (
             <div>
               <div className="flex items-center gap-3 mb-6">
-                <CheckCircle className="w-6 h-6" />
-                <h2 className="text-2xl font-bold">Enter OTP</h2>
+                <CheckCircle className="w-6 h-6 text-black" />
+                <h2 className="text-2xl font-bold">Verify OTP</h2>
               </div>
               <p className="text-gray-600 mb-6">
-                Enter the 6-digit OTP sent to {formData.phone}
+                Enter the 6-digit OTP sent to WhatsApp at {formData.phone}
               </p>
-              <input
-                type="text"
-                placeholder="Enter OTP"
-                maxLength={6}
-                value={formData.otp}
-                onChange={(e) =>
-                  setFormData({ ...formData, otp: e.target.value })
-                }
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg mb-4 text-center text-2xl tracking-widest focus:outline-none focus:border-black"
-              />
-              <button
-                onClick={handleVerifyOTP}
-                disabled={loading}
-                className="w-full py-3 bg-black text-white font-semibold rounded-lg hover:bg-gray-900 transition disabled:opacity-50"
-              >
-                {loading ? "Verifying..." : "Verify OTP"}
-              </button>
+              <div className="space-y-4">
+                <input
+                  type="text"
+                  placeholder="000000"
+                  maxLength={6}
+                  value={formData.otp}
+                  onChange={(e) => {
+                    if (/^\d*$/.test(e.target.value)) {
+                      setFormData({ ...formData, otp: e.target.value });
+                    }
+                  }}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg text-center text-3xl tracking-widest font-semibold focus:outline-none focus:border-black focus:ring-1 focus:ring-black"
+                />
+                <p className="text-xs text-gray-500 text-center">
+                  OTP valid for 10 minutes
+                </p>
+              </div>
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={() => setStep(1)}
+                  className="flex-1 py-3 border border-gray-300 text-black font-semibold rounded-lg hover:bg-gray-50 transition"
+                >
+                  Back
+                </button>
+                <button
+                  onClick={handleVerifyOTP}
+                  disabled={loading || formData.otp.length !== 6}
+                  className="flex-1 py-3 bg-black text-white font-semibold rounded-lg hover:bg-gray-900 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loading ? "Verifying..." : "Verify OTP"}
+                </button>
+              </div>
             </div>
           )}
 
           {step === 3 && (
             <div>
               <div className="flex items-center gap-3 mb-6">
-                <FileText className="w-6 h-6" />
+                <FileText className="w-6 h-6 text-black" />
                 <h2 className="text-2xl font-bold">SEBI Registration</h2>
               </div>
               <div className="space-y-4">
@@ -226,10 +268,10 @@ const AdvisorOnboarding = () => {
                     onChange={(e) =>
                       setFormData({
                         ...formData,
-                        sebiRegistrationNumber: e.target.value,
+                        sebiRegistrationNumber: e.target.value.toUpperCase(),
                       })
                     }
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-black"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-black focus:ring-1 focus:ring-black"
                   />
                 </div>
 
@@ -238,14 +280,14 @@ const AdvisorOnboarding = () => {
                     Bio (Optional)
                   </label>
                   <textarea
-                    placeholder="Tell investors about your trading experience..."
+                    placeholder="Tell investors about your trading experience, expertise, and investment strategy..."
                     value={formData.bio}
                     onChange={(e) =>
                       setFormData({ ...formData, bio: e.target.value })
                     }
                     rows={4}
                     maxLength={500}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-black resize-none"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-black focus:ring-1 focus:ring-black resize-none"
                   />
                   <p className="text-xs text-gray-500 mt-1">
                     {formData.bio.length}/500 characters
@@ -256,10 +298,10 @@ const AdvisorOnboarding = () => {
                   <label className="block text-sm font-medium mb-2">
                     SEBI Certificate *
                   </label>
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition">
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition cursor-pointer">
                     <input
                       type="file"
-                      accept="image/*,application/pdf"
+                      accept="image/*,.pdf"
                       onChange={handleFileChange}
                       className="hidden"
                       id="sebi-upload"
@@ -269,7 +311,7 @@ const AdvisorOnboarding = () => {
                       className="cursor-pointer flex flex-col items-center"
                     >
                       <Upload className="w-10 h-10 text-gray-400 mb-2" />
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm font-medium text-gray-700">
                         {sebiFile
                           ? sebiFile.name
                           : "Click to upload SEBI certificate"}
@@ -280,11 +322,19 @@ const AdvisorOnboarding = () => {
                     </label>
                   </div>
                 </div>
+              </div>
 
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={() => setStep(2)}
+                  className="flex-1 py-3 border border-gray-300 text-black font-semibold rounded-lg hover:bg-gray-50 transition"
+                >
+                  Back
+                </button>
                 <button
                   onClick={handleSubmit}
-                  disabled={loading}
-                  className="w-full py-3 bg-black text-white font-semibold rounded-lg hover:bg-gray-900 transition disabled:opacity-50"
+                  disabled={loading || !formData.sebiRegistrationNumber || !sebiFile}
+                  className="flex-1 py-3 bg-black text-white font-semibold rounded-lg hover:bg-gray-900 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? "Submitting..." : "Submit Application"}
                 </button>
@@ -293,18 +343,33 @@ const AdvisorOnboarding = () => {
           )}
 
           {step === 4 && (
-            <div className="text-center py-8">
+            <div className="text-center py-12">
               <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <CheckCircle className="w-12 h-12 text-green-600" />
               </div>
-              <h2 className="text-2xl font-bold mb-3">Application Submitted!</h2>
-              <p className="text-gray-600 mb-6">
-                Your advisor application is under review. You'll be notified
-                once it's approved by our admin team.
+              <h2 className="text-3xl font-bold mb-2">
+                Application Submitted!
+              </h2>
+              <p className="text-gray-600 mb-2">
+                Your advisor application has been received successfully.
               </p>
+              <p className="text-gray-500 text-sm mb-8">
+                You'll be notified once it's approved by our admin team. This usually takes 1-2 business days.
+              </p>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
+                <p className="text-sm text-blue-800">
+                  ✓ Phone verified: {formData.phone}
+                </p>
+                <p className="text-sm text-blue-800">
+                  ✓ SEBI Registration: {formData.sebiRegistrationNumber}
+                </p>
+                <p className="text-sm text-blue-800">
+                  ✓ Certificate uploaded: {sebiFile?.name}
+                </p>
+              </div>
               <button
                 onClick={() => navigate("/advisor/dashboard")}
-                className="px-6 py-3 bg-black text-white font-semibold rounded-lg hover:bg-gray-900 transition"
+                className="px-8 py-3 bg-black text-white font-semibold rounded-lg hover:bg-gray-900 transition"
               >
                 Go to Dashboard
               </button>

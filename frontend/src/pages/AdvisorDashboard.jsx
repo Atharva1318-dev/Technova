@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -11,7 +12,9 @@ import {
   Award,
   Plus,
   Activity,
-  LogOut
+  LogOut,
+  CheckCircle,
+  AlertCircle
 } from "lucide-react";
 import SignalCreator from "../components/advisor/SignalCreator";
 import ActiveTrades from "../components/advisor/ActiveTrades";
@@ -32,16 +35,17 @@ const AdvisorDashboard = () => {
       return;
     }
 
-    // Check if advisor is verified
-    if (!userData.isVerified) {
-      toast.error("Please complete your onboarding process to access the dashboard");
-      navigate("/advisor/onboarding");
-      return;
-    }
+    // Check if advisor has completed onboarding
+    // Use verificationStatus instead of isVerified (persists across refreshes)
+    
 
     // Initialize Socket.io
-    const socket = initializeSocket();
-    joinAdvisorRoom(userData._id);
+    try {
+      const socket = initializeSocket();
+      joinAdvisorRoom(userData._id);
+    } catch (e) {
+      console.warn("Socket initialization warning:", e.message);
+    }
 
     // Fetch dashboard stats
     fetchStats();
@@ -72,6 +76,7 @@ const AdvisorDashboard = () => {
       navigate("/login");
     } catch (error) {
       console.error("Logout error:", error);
+      toast.error("Logout failed");
     }
   };
 
@@ -86,10 +91,26 @@ const AdvisorDashboard = () => {
     );
   }
 
+  if (!userData) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600">No user data found</p>
+          <button
+            onClick={() => navigate("/login")}
+            className="mt-4 px-4 py-2 bg-black text-white rounded-lg"
+          >
+            Go to Login
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200">
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div>
@@ -108,7 +129,7 @@ const AdvisorDashboard = () => {
               </button>
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+                className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition text-gray-700"
               >
                 <LogOut className="w-4 h-4" />
                 Logout
@@ -118,97 +139,155 @@ const AdvisorDashboard = () => {
         </div>
       </header>
 
-      {/* Stats Cards */}
+      {/* Verification Status Banner */}
+      {userData.verificationStatus === "pending" && (
+        <div className="bg-blue-50 border-b border-blue-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div className="flex items-center gap-3 text-blue-800">
+              <AlertCircle className="w-5 h-5" />
+              <p className="text-sm">
+                Your application is pending admin review. You can still create signals, but they won't be visible to investors until approved.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {userData.verificationStatus === "approved" && (
+        <div className="bg-green-50 border-b border-green-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div className="flex items-center gap-3 text-green-800">
+              <CheckCircle className="w-5 h-5" />
+              <p className="text-sm">
+                ✓ Your account is verified and approved! Your signals are now visible to investors.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Profile Info Card */}
+        <div className="bg-white rounded-xl p-6 border border-gray-200 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h3 className="text-sm font-medium text-gray-600 mb-1">SEBI Registration</h3>
+              <p className="text-lg font-bold text-gray-900">
+                {userData?.sebiRegistrationNumber || "Not provided"}
+              </p>
+            </div>
+            <div>
+              <h3 className="text-sm font-medium text-gray-600 mb-1">Phone (Verified)</h3>
+              <p className="text-lg font-bold text-gray-900">
+                {userData?.phone || "Not verified"}
+              </p>
+            </div>
+            {userData?.bio && (
+              <div className="md:col-span-2">
+                <h3 className="text-sm font-medium text-gray-600 mb-1">Bio</h3>
+                <p className="text-gray-700">{userData.bio}</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {/* Subscribers */}
-          <div className="bg-white rounded-xl p-6 border border-gray-200">
+          <div className="bg-white rounded-xl p-6 border border-gray-200 hover:shadow-lg transition">
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 bg-blue-100 rounded-lg">
                 <Users className="w-6 h-6 text-blue-600" />
               </div>
-              <span className="text-xs text-gray-500">Total</span>
+              <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded">Total</span>
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-1">
+            <h3 className="text-3xl font-bold text-gray-900 mb-1">
               {stats?.subscriberCount || 0}
             </h3>
             <p className="text-sm text-gray-600">Subscribers</p>
           </div>
 
           {/* Total Trades */}
-          <div className="bg-white rounded-xl p-6 border border-gray-200">
+          <div className="bg-white rounded-xl p-6 border border-gray-200 hover:shadow-lg transition">
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 bg-purple-100 rounded-lg">
                 <Activity className="w-6 h-6 text-purple-600" />
               </div>
-              <span className="text-xs text-gray-500">All Time</span>
+              <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded">All Time</span>
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-1">
+            <h3 className="text-3xl font-bold text-gray-900 mb-1">
               {stats?.totalTrades || 0}
             </h3>
             <p className="text-sm text-gray-600">Total Trades</p>
           </div>
 
           {/* Win Rate */}
-          <div className="bg-white rounded-xl p-6 border border-gray-200">
+          <div className="bg-white rounded-xl p-6 border border-gray-200 hover:shadow-lg transition">
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 bg-green-100 rounded-lg">
                 <Target className="w-6 h-6 text-green-600" />
               </div>
-              <span className="text-xs text-gray-500">Success</span>
+              <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded">Success</span>
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-1">
+            <h3 className="text-3xl font-bold text-gray-900 mb-1">
               {stats?.winRate?.toFixed(1) || 0}%
             </h3>
             <p className="text-sm text-gray-600">Win Rate</p>
           </div>
 
           {/* Trust Score */}
-          <div className="bg-white rounded-xl p-6 border border-gray-200">
+          <div className="bg-white rounded-xl p-6 border border-gray-200 hover:shadow-lg transition">
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 bg-yellow-100 rounded-lg">
                 <Award className="w-6 h-6 text-yellow-600" />
               </div>
-              <span className="text-xs text-gray-500">Rating</span>
+              <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded">Rating</span>
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-1">
-              {stats?.trustScore || 0}/100
+            <h3 className="text-3xl font-bold text-gray-900 mb-1">
+              {stats?.trustScore?.toFixed(1) || 0}/100
             </h3>
             <p className="text-sm text-gray-600">Trust Score</p>
           </div>
         </div>
 
         {/* P&L Summary */}
-        <div className="bg-white rounded-xl p-6 border border-gray-200 mb-8">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">
+        <div className="bg-white rounded-xl p-8 border border-gray-200 mb-8">
+          <h2 className="text-xl font-bold text-gray-900 mb-6">
             Profit & Loss Summary
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div>
-              <p className="text-sm text-gray-600 mb-1">Total Profit</p>
-              <p className="text-2xl font-bold text-green-600">
-                ₹{stats?.totalProfit?.toFixed(2) || 0}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="border-l-4 border-green-500 pl-6">
+              <p className="text-sm font-medium text-gray-600 mb-2">Total Profit</p>
+              <p className="text-4xl font-bold text-green-600">
+                ₹{stats?.totalProfit?.toFixed(2) || "0.00"}
               </p>
+              <p className="text-xs text-gray-500 mt-1">From successful trades</p>
             </div>
-            <div>
-              <p className="text-sm text-gray-600 mb-1">Total Loss</p>
-              <p className="text-2xl font-bold text-red-600">
-                ₹{stats?.totalLoss?.toFixed(2) || 0}
+            <div className="border-l-4 border-red-500 pl-6">
+              <p className="text-sm font-medium text-gray-600 mb-2">Total Loss</p>
+              <p className="text-4xl font-bold text-red-600">
+                ₹{stats?.totalLoss?.toFixed(2) || "0.00"}
               </p>
+              <p className="text-xs text-gray-500 mt-1">From losing trades</p>
             </div>
-            <div>
-              <p className="text-sm text-gray-600 mb-1">Net P&L</p>
-              <p className={`text-2xl font-bold ${
-                stats?.netProfitLoss >= 0 ? "text-green-600" : "text-red-600"
+            <div className="border-l-4 border-blue-500 pl-6">
+              <p className="text-sm font-medium text-gray-600 mb-2">Net P&L</p>
+              <p className={`text-4xl font-bold ${
+                (stats?.netProfitLoss || 0) >= 0 ? "text-green-600" : "text-red-600"
               }`}>
-                ₹{stats?.netProfitLoss?.toFixed(2) || 0}
+                ₹{stats?.netProfitLoss?.toFixed(2) || "0.00"}
               </p>
+              <p className="text-xs text-gray-500 mt-1">Overall performance</p>
             </div>
           </div>
         </div>
 
-        {/* Active Trades */}
-        <ActiveTrades onRefresh={fetchStats} />
+        {/* Active Trades Section */}
+        <div>
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Recent Signals</h2>
+          <ActiveTrades onRefresh={fetchStats} />
+        </div>
       </div>
 
       {/* Signal Creator Modal */}
@@ -218,6 +297,7 @@ const AdvisorDashboard = () => {
           onSuccess={() => {
             setShowSignalCreator(false);
             fetchStats();
+            toast.success("Signal created successfully!");
           }}
         />
       )}

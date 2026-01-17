@@ -1,55 +1,7 @@
-
 import User from "../models/user.models.js";
 import { uploadToCloudinary } from "../middleware/upload.middleware.js";
 import { generateOTP, sendOTP, storeOTP, verifyOTP, normalizePhone } from "../services/sms.service.js";
 import { generateAdvisorWallet } from "../services/solana.service.js";
-
-// Submit advisor onboarding application
-export const submitOnboarding = async (req, res) => {
-  try {
-    const userId = req.userId;
-    const { sebiRegistrationNumber, bio, phone } = req.body;
-
-    if (!sebiRegistrationNumber || !phone) {
-      return res.status(400).json({ 
-        message: "SEBI registration number and phone are required" 
-      });
-    }
-
-    if (!req.file) {
-      return res.status(400).json({ message: "SEBI certificate is required" });
-    }
-
-    // Normalize phone BEFORE storing
-    const normalizedPhone = normalizePhone(phone);
-    console.log(`Onboarding: ${phone} → ${normalizedPhone}`);
-
-    const uploadResult = await uploadToCloudinary(
-      req.file.buffer,
-      "technova/sebi-certificates"
-    );
-
-    const user = await User.findByIdAndUpdate(
-      userId,
-      {
-        sebiCertificate: uploadResult.secure_url,
-        sebiRegistrationNumber,
-        bio: bio || "",
-        phone: normalizedPhone,
-        verificationStatus: "pending",
-      },
-      { new: true }
-    );
-
-    return res.status(200).json({
-      message: "Onboarding application submitted successfully",
-      user,
-    });
-  } catch (error) {
-    console.error("Error in submitOnboarding:", error);
-    return res.status(500).json({ message: "Internal server error" });
-  }
-};
 
 // Send OTP for phone verification
 export const sendPhoneOTP = async (req, res) => {
@@ -93,7 +45,7 @@ export const sendPhoneOTP = async (req, res) => {
   }
 };
 
-// Verify phone OTP
+// Verify phone OTP — SET isVerified: true HERE
 export const verifyPhoneOTP = async (req, res) => {
   try {
     const userId = req.userId;
@@ -110,11 +62,20 @@ export const verifyPhoneOTP = async (req, res) => {
       return res.status(400).json({ message: verification.message });
     }
 
+    // Set isVerified: true when OTP is verified
     const user = await User.findByIdAndUpdate(
       userId,
-      { phone: normalizedPhone, phoneVerified: true },
-      { new: true }
+      { 
+        phone: normalizedPhone, 
+        phoneVerified: true,
+        isVerified: true  // Set to true after OTP verification
+      },
+      { new: true, select: "-password" }
     );
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
     return res.status(200).json({
       message: "Phone verified successfully",
@@ -122,6 +83,60 @@ export const verifyPhoneOTP = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in verifyPhoneOTP:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// Submit advisor onboarding application
+export const submitOnboarding = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { sebiRegistrationNumber, bio, phone } = req.body;
+
+    if (!sebiRegistrationNumber || !phone) {
+      return res.status(400).json({ 
+        message: "SEBI registration number and phone are required" 
+      });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ message: "SEBI certificate is required" });
+    }
+
+    // Normalize phone BEFORE storing
+    const normalizedPhone = normalizePhone(phone);
+    console.log(`Onboarding: ${phone} → ${normalizedPhone}`);
+
+    const uploadResult = await uploadToCloudinary(
+      req.file.buffer,
+      "technova/sebi-certificates"
+    );
+
+    // Do NOT set isVerified here — it's already set in OTP verification
+    const user = await User.findByIdAndUpdate(
+      userId,
+      {
+        sebiCertificate: uploadResult.secure_url,
+        sebiRegistrationNumber,
+        bio: bio || "",
+        phone: normalizedPhone,
+        phoneVerified: true,
+        verificationStatus: "pending",  // Admin will change to "approved"
+        // isVerified remains true (already set from OTP step)
+      },
+      { new: true, select: "-password" }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.status(200).json({
+      message: "Onboarding application submitted successfully",
+      user,
+    });
+  } catch (error) {
+    console.error("Error in submitOnboarding:", error);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -146,7 +161,11 @@ export const updateProfile = async (req, res) => {
       updateData.profilePicture = uploadResult.secure_url;
     }
 
-    const user = await User.findByIdAndUpdate(userId, updateData, { new: true });
+    const user = await User.findByIdAndUpdate(
+      userId, 
+      updateData, 
+      { new: true, select: "-password" }
+    );
 
     return res.status(200).json({
       message: "Profile updated successfully",
@@ -238,9 +257,9 @@ export const getAllAdvisors = async (req, res) => {
 };
 
 export default {
-  submitOnboarding,
   sendPhoneOTP,
   verifyPhoneOTP,
+  submitOnboarding,
   updateProfile,
   getDashboardStats,
   getAdvisorProfile,
