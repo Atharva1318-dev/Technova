@@ -24,15 +24,15 @@ export const sendPhoneOTP = async (req, res) => {
       await sendOTP(normalizedPhone, otp);
     } catch (sendErr) {
       console.error("Send OTP error:", sendErr.message);
-      return res.status(500).json({ 
+      return res.status(500).json({
         message: sendErr.message || "Failed to send OTP",
         hint: "If using WhatsApp sandbox, recipient must join sandbox first: send 'join <code>' to +14155238886"
       });
     }
 
-    await User.findByIdAndUpdate(userId, { 
+    await User.findByIdAndUpdate(userId, {
       phone: normalizedPhone,
-      phoneVerified: false 
+      phoneVerified: false
     });
 
     return res.status(200).json({
@@ -65,8 +65,8 @@ export const verifyPhoneOTP = async (req, res) => {
     // Set isVerified: true when OTP is verified
     const user = await User.findByIdAndUpdate(
       userId,
-      { 
-        phone: normalizedPhone, 
+      {
+        phone: normalizedPhone,
         phoneVerified: true,
         isVerified: true  // Set to true after OTP verification
       },
@@ -94,8 +94,8 @@ export const submitOnboarding = async (req, res) => {
     const { sebiRegistrationNumber, bio, phone } = req.body;
 
     if (!sebiRegistrationNumber || !phone) {
-      return res.status(400).json({ 
-        message: "SEBI registration number and phone are required" 
+      return res.status(400).json({
+        message: "SEBI registration number and phone are required"
       });
     }
 
@@ -162,8 +162,8 @@ export const updateProfile = async (req, res) => {
     }
 
     const user = await User.findByIdAndUpdate(
-      userId, 
-      updateData, 
+      userId,
+      updateData,
       { new: true, select: "-password" }
     );
 
@@ -189,7 +189,7 @@ export const getDashboardStats = async (req, res) => {
 
     // Import Trade model to get active trades count
     const Trade = (await import("../models/trade.models.js")).default;
-    
+
     // Get active trades count
     const activeTrades = await Trade.countDocuments({
       advisorId: userId,
@@ -212,7 +212,7 @@ export const getDashboardStats = async (req, res) => {
     // Calculate today's P&L (mock for now - you can implement actual logic)
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     const todayTrades = await Trade.find({
       advisorId: userId,
       status: "closed",
@@ -270,7 +270,7 @@ export const getAllAdvisors = async (req, res) => {
     const filter = {
       role: "advisor",
       isVerified: true,
-      verificationStatus: "approved",
+      // verificationStatus: "approved",
     };
 
     if (minWinRate) {
@@ -299,7 +299,7 @@ export const getRecentActivity = async (req, res) => {
   try {
     const userId = req.userId;
     const Trade = (await import("../models/trade.models.js")).default;
-    
+
     // Get recent closed trades (last 10)
     const recentTrades = await Trade.find({
       advisorId: userId,
@@ -316,7 +316,7 @@ export const getRecentActivity = async (req, res) => {
     recentTrades.forEach((trade) => {
       const isProfit = trade.profitLoss > 0;
       const timeAgo = getTimeAgo(trade.closedAt);
-      
+
       if (trade.closedReason === "target-hit") {
         activities.push({
           type: "target_hit",
@@ -347,7 +347,7 @@ export const getRecentActivity = async (req, res) => {
     // Mock new subscriber notifications (you can replace with actual subscriber tracking)
     const recentDate = new Date();
     recentDate.setHours(recentDate.getHours() - 2);
-    
+
     // Add some mock subscriber activities
     activities.push({
       type: "new_subscriber",
@@ -360,7 +360,7 @@ export const getRecentActivity = async (req, res) => {
     // Mock trade acknowledgments
     const ackDate = new Date();
     ackDate.setHours(ackDate.getHours() - 1);
-    
+
     activities.push({
       type: "trade_acknowledged",
       title: "📊 Signal Published",
@@ -394,12 +394,28 @@ function getTimeAgo(date) {
   if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
   if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
   if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
-  return new Date(date).toLocaleDateString('en-IN', { 
-    day: '2-digit', 
-    month: 'short', 
-    year: 'numeric' 
+  return new Date(date).toLocaleDateString('en-IN', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric'
   });
 }
+
+// getAllAdvisors = async (req, res) => {
+//   try {
+//     const advisors = await User.find({
+//       role: "advisor",
+//       isVerified: true,
+//       verificationStatus: "approved",
+//     })
+//       .select("name profilePicture trustScore subscriberCount")
+//       .sort({ trustScore: -1 });
+
+//     res.status(200).json({ advisors });
+//   } catch (error) {
+//     res.status(500).json({ message: "Failed to fetch advisors" });
+//   }
+// };
 
 export default {
   sendPhoneOTP,
@@ -408,6 +424,6 @@ export default {
   updateProfile,
   getDashboardStats,
   getAdvisorProfile,
-  getAllAdvisors,
+  // getAllAdvisors,
   getRecentActivity,
 };

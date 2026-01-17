@@ -9,9 +9,11 @@ import {
   updateProfile,
   getDashboardStats,
   getAdvisorProfile,
-  getAllAdvisors,
+  // getAllAdvisors,
   getRecentActivity,
 } from "../controller/advisor.controller.js";
+
+import { getAllAdvisors } from "../controller/advisor.controller.js";
 
 const AdvisorRouter = express.Router();
 
