@@ -8,38 +8,53 @@ const TAVILY_API_URL = "https://api.tavily.com/search";
 const OLLAMA_API = "http://localhost:11434";
 const OLLAMA_MODEL = "qwen3-coder:480b-cloud";
 
-// Indian stock market keywords
-const INDIAN_STOCK_KEYWORDS = [
-  "nse",
-  "bse",
-  "sensex",
-  "nifty",
-  "india",
-  "stock",
-  "market",
+// STRICT: Only valid Indian stock market queries
+const VALID_INDIAN_STOCKS = [
   "reliance",
   "tcs",
   "infy",
   "hdfc",
-  "icici",
+  "hdfc bank",
+  "icici bank",
   "sbin",
   "itc",
   "lt",
   "maruti",
-  "axis",
+  "axis bank",
   "wipro",
-  "bajaj",
-  "tatamotors",
-  "asianpaint",
+  "bajaj auto",
   "sunpharma",
   "powergrid",
-  "bharti",
+  "bharti airtel",
+  "m&m",
+  "asianpaint",
+  "bajajfinsv",
+  "tatamotors",
+  "nifty 50",
+  "nifty",
+  "sensex",
+  "nse",
+  "bse",
+];
+
+const ALLOWED_KEYWORDS = [
+  "stock",
+  "market",
   "share",
-  "rupee",
-  "rbi",
-  "sebi",
   "trading",
   "dividend",
+  "ipo",
+  "listing",
+  "earnings",
+  "results",
+  "rbi",
+  "sebi",
+  "rupee",
+  "india",
+  "bull",
+  "bear",
+  "nifty",
+  "sensex",
 ];
 
 /**
@@ -60,20 +75,41 @@ const callOllama = async (prompt) => {
     return response.data?.response?.trim() || "";
   } catch (error) {
     console.error("Ollama error:", error.message);
-    throw new Error(`AI Summarization failed: ${error.message}`);
+    throw new Error(`AI failed: ${error.message}`);
   }
 };
 
 /**
- * Check if query is about Indian stock market
+ * ✅ STRICT CHECK: Only allow valid Indian stock market queries
  */
-const isIndianStockQuery = (query) => {
+const isValidIndianStockQuery = (query) => {
   const lowerQuery = query.toLowerCase();
-  return INDIAN_STOCK_KEYWORDS.some((keyword) => lowerQuery.includes(keyword));
+
+  // Check if contains valid stock name
+  const hasValidStock = VALID_INDIAN_STOCKS.some((stock) =>
+    lowerQuery.includes(stock)
+  );
+
+  // Check if contains market-related keywords
+  const hasMarketKeyword = ALLOWED_KEYWORDS.some((keyword) =>
+    lowerQuery.includes(keyword)
+  );
+
+  // Check for India/NSE/BSE
+  const hasMarketLocation =
+    lowerQuery.includes("india") ||
+    lowerQuery.includes("nse") ||
+    lowerQuery.includes("bse");
+
+  // STRICT: Must have valid stock OR (market keyword + location)
+  if (hasValidStock) return true;
+  if (hasMarketKeyword && hasMarketLocation) return true;
+
+  return false;
 };
 
 /**
- * ✅ SIMPLIFIED: Fetch ONLY Indian stock market news + AI summarize
+ * ✅ STRICT: Fetch ONLY Indian stock market news + AI summarize
  */
 export const searchAndSummarize = async (req, res) => {
   try {
@@ -83,43 +119,61 @@ export const searchAndSummarize = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: "Please enter a search query",
-        example: "Try: RELIANCE, NIFTY 50, NSE, TCS, Stock Market India",
+        validSearches: [
+          "RELIANCE",
+          "NIFTY 50",
+          "NSE market",
+          "TCS stock",
+          "HDFC bank",
+        ],
       });
     }
 
-    // ✅ CHECK: Only allow Indian stock market queries
-    if (!isIndianStockQuery(query)) {
+    // ✅ STRICT CHECK: Only allow Indian stock market queries
+    if (!isValidIndianStockQuery(query)) {
       return res.status(403).json({
         success: false,
-        message: "Only Indian stock market news available. Try searching for NSE, BSE, or Indian stocks like RELIANCE, TCS, INFY, etc.",
-        example: "Valid searches: 'RELIANCE stock', 'NIFTY 50', 'BSE market', 'TCS news'",
+        message:
+          "Only Indian stock market news available. Search for NSE, BSE, or Indian stocks.",
+        validStocks: VALID_INDIAN_STOCKS.slice(0, 10),
+        validExample: [
+          "RELIANCE stock",
+          "NIFTY 50",
+          "TCS earnings",
+          "NSE market news",
+        ],
       });
     }
 
     if (!TAVILY_API_KEY) {
       return res.status(400).json({
         success: false,
-        message: "Tavily API key not configured",
+        message: "API key not configured",
       });
     }
 
-    console.log(`🔍 STEP 1: Searching Indian market news for "${query}"`);
+    console.log(
+      `🔍 STEP 1: Fetching Indian stock news for: "${query}"`
+    );
 
-    // STEP 1: Fetch news from Tavily with Indian market focus
+    // STEP 1: Fetch news from Tavily
     const searchResponse = await axios.post(
       TAVILY_API_URL,
       {
         api_key: TAVILY_API_KEY,
-        query: `${query} NSE BSE India stock market`,
+        query: `${query} NSE BSE India stock market news`,
         include_answer: true,
-        max_results: 10,
+        max_results: 12,
         search_depth: "advanced",
         topic: "news",
       },
       { timeout: 15000 }
     );
 
-    if (!searchResponse.data.results || searchResponse.data.results.length === 0) {
+    if (
+      !searchResponse.data.results ||
+      searchResponse.data.results.length === 0
+    ) {
       return res.status(404).json({
         success: false,
         message: `No Indian stock market news found for "${query}"`,
@@ -127,7 +181,9 @@ export const searchAndSummarize = async (req, res) => {
       });
     }
 
-    console.log(`✅ STEP 1: Found ${searchResponse.data.results.length} articles`);
+    console.log(
+      `✅ STEP 1: Found ${searchResponse.data.results.length} articles`
+    );
 
     // STEP 2: Format articles
     const articles = searchResponse.data.results.map((result) => ({
@@ -138,9 +194,9 @@ export const searchAndSummarize = async (req, res) => {
       publish_date: result.published_date,
     }));
 
-    console.log(`📝 STEP 2: Formatting articles...`);
+    console.log(`📝 STEP 2: Preparing AI summarization...`);
 
-    // STEP 3: Prepare content for AI summarization
+    // STEP 3: Prepare content for AI
     const newsContent = articles
       .map(
         (article, idx) =>
@@ -148,32 +204,35 @@ export const searchAndSummarize = async (req, res) => {
       )
       .join("\n\n");
 
-    console.log(`🤖 STEP 3: Sending to AI for summarization...`);
+    console.log(`🤖 STEP 3: AI summarizing...`);
 
     // STEP 4: Summarize with AI
-    const summaryPrompt = `Summarize these Indian stock market news articles about "${query}" in a clear, concise way.
+    const summaryPrompt = `You are an Indian stock market analyst. Summarize these news articles about "${query}" for Indian investors.
 
-Format:
+Format your response exactly as:
 
 SUMMARY
-Provide a brief 2-3 sentence overview
+Write 2-3 sentences summarizing the key news
 
 KEY POINTS
 - Point 1
 - Point 2
 - Point 3
 
-SENTIMENT
-Positive, Negative, or Neutral?
+MARKET SENTIMENT
+Is this Positive, Negative, or Neutral for investors? Why?
+
+INVESTMENT IMPLICATION
+What should Indian investors know?
 
 ---
 
-ARTICLES:
+NEWS ARTICLES:
 ${newsContent}`;
 
     const aiSummary = await callOllama(summaryPrompt);
 
-    console.log(`✅ STEP 4: AI summary complete`);
+    console.log(`✅ STEP 4: Summarization complete`);
 
     // STEP 5: Return results
     return res.status(200).json({
@@ -183,7 +242,7 @@ ${newsContent}`;
       aiSummary,
       sourceArticles: articles,
       articleCount: articles.length,
-      source: "Tavily + Qwen3",
+      source: "Tavily News + Qwen3 AI",
       timestamp: new Date(),
     });
   } catch (error) {

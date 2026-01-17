@@ -29,12 +29,16 @@ const IndianStockNews = () => {
         params: { query: searchQuery },
       });
 
-      setAiSummary(response.data.aiSummary);
-      setArticles(response.data.sourceArticles || []);
-      toast.success("News summarized!");
+      if (response.data.success) {
+        setAiSummary(response.data.aiSummary);
+        setArticles(response.data.sourceArticles || []);
+        toast.success("News summarized!");
+      }
     } catch (error) {
       const msg = error.response?.data?.message || "Failed to fetch news";
       toast.error(msg);
+      setAiSummary(null);
+      setArticles([]);
     } finally {
       setLoading(false);
     }
@@ -50,12 +54,12 @@ const IndianStockNews = () => {
 
         <div className="max-w-3xl mx-auto relative z-10 text-center space-y-6">
           <h1 className="text-5xl md:text-6xl font-bold">
-            Stock Market News
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600"> AI</span>
+            Indian Stock Market
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600"> News</span>
           </h1>
 
           <p className="text-neutral-400 text-lg">
-            Indian stock market news summarized by AI
+            AI-powered summaries of NSE and BSE stock market news
           </p>
 
           {/* Search Bar */}
@@ -64,7 +68,7 @@ const IndianStockNews = () => {
               <Search className="absolute left-4 top-3 w-5 h-5 text-gray-500" />
               <input
                 type="text"
-                placeholder="Search: RELIANCE, NIFTY, NSE, TCS..."
+                placeholder="Search: RELIANCE, NIFTY 50, TCS, NSE..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-12 pr-4 py-3 rounded-lg text-white bg-white/5 border border-white/10 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-600"
@@ -78,6 +82,19 @@ const IndianStockNews = () => {
               Search
             </button>
           </form>
+
+          {/* Quick Links */}
+          <div className="flex justify-center gap-2 flex-wrap">
+            {["RELIANCE", "NIFTY 50", "TCS", "HDFC"].map((stock) => (
+              <button
+                key={stock}
+                onClick={() => setSearchQuery(stock)}
+                className="text-sm px-3 py-1 rounded-full border border-white/20 hover:border-blue-500 hover:text-blue-400 transition"
+              >
+                {stock}
+              </button>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -86,9 +103,11 @@ const IndianStockNews = () => {
         <div className="max-w-4xl mx-auto">
           {/* Loading */}
           {loading && (
-            <div className="text-center py-12">
+            <div className="text-center py-16">
               <Loader className="w-10 h-10 text-blue-400 animate-spin mx-auto mb-3" />
-              <p className="text-neutral-400">Fetching and analyzing news...</p>
+              <p className="text-neutral-400 font-medium">
+                Fetching and analyzing news...
+              </p>
             </div>
           )}
 
@@ -97,9 +116,9 @@ const IndianStockNews = () => {
             <div className="mb-8 rounded-xl border border-blue-500/30 bg-blue-500/5 p-6 backdrop-blur-sm">
               <div className="flex gap-3 mb-4">
                 <Lightbulb className="w-6 h-6 text-blue-400 flex-shrink-0" />
-                <h2 className="text-xl font-bold">Summary</h2>
+                <h2 className="text-xl font-bold">AI Summary</h2>
               </div>
-              <div className="text-neutral-300 leading-relaxed whitespace-pre-wrap text-sm">
+              <div className="text-neutral-300 leading-relaxed whitespace-pre-wrap text-sm space-y-3">
                 {aiSummary}
               </div>
             </div>
@@ -108,7 +127,9 @@ const IndianStockNews = () => {
           {/* Articles */}
           {articles.length > 0 && !loading && (
             <div>
-              <h3 className="text-lg font-bold mb-4">Source Articles ({articles.length})</h3>
+              <h3 className="text-lg font-bold mb-4">
+                Source Articles ({articles.length})
+              </h3>
               <div className="space-y-3">
                 {articles.map((article, idx) => (
                   <a
@@ -118,12 +139,14 @@ const IndianStockNews = () => {
                     rel="noopener noreferrer"
                     className="group flex items-start gap-3 p-4 rounded-lg border border-white/10 bg-white/[0.02] hover:bg-white/[0.05] transition"
                   >
-                    <ExternalLink className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
+                    <ExternalLink className="w-4 h-4 text-blue-400 flex-shrink-0 mt-1" />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-white group-hover:text-blue-400 transition line-clamp-2">
                         {article.title}
                       </p>
-                      <p className="text-xs text-neutral-500 mt-1">{article.source}</p>
+                      <p className="text-xs text-neutral-500 mt-1">
+                        {article.source}
+                      </p>
                     </div>
                   </a>
                 ))}
@@ -135,7 +158,12 @@ const IndianStockNews = () => {
           {!aiSummary && !articles.length && !loading && (
             <div className="text-center py-16">
               <AlertCircle className="w-10 h-10 text-neutral-600 mx-auto mb-3" />
-              <p className="text-neutral-400">Search for Indian stock market news</p>
+              <p className="text-neutral-400 font-medium">
+                Search for Indian stock market news
+              </p>
+              <p className="text-neutral-500 text-sm mt-1">
+                Try: RELIANCE, NIFTY 50, NSE market, TCS earnings
+              </p>
             </div>
           )}
         </div>
