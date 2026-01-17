@@ -34,6 +34,7 @@ const AdvisorDashboard = () => {
 
     // Check if advisor is verified
     if (!userData.isVerified) {
+      toast.error("Please complete your onboarding process to access the dashboard");
       navigate("/advisor/onboarding");
       return;
     }

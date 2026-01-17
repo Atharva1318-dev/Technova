@@ -1,9 +1,11 @@
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import { Upload, Phone, FileText, CheckCircle } from "lucide-react";
 import axios from "axios";
 import { AuthDataContext } from "../context/AuthDataContext";
 import { toast } from "react-toastify";
+import { setUserData } from "../redux/userSlice";
 
 const AdvisorOnboarding = () => {
   const [step, setStep] = useState(1);
@@ -17,6 +19,8 @@ const AdvisorOnboarding = () => {
   const [loading, setLoading] = useState(false);
   const { serverUrl } = useContext(AuthDataContext);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const userData = useSelector((state) => state.user.userData);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -65,6 +69,15 @@ const AdvisorOnboarding = () => {
         { withCredentials: true }
       );
       toast.success("Phone verified successfully");
+
+      // Update Redux state to set isVerified as true
+      if (userData) {
+        dispatch(setUserData({
+          ...userData,
+          isVerified: true
+        }));
+      }
+
       setStep(3);
     } catch (error) {
       toast.error(error.response?.data?.message || "Invalid OTP");
@@ -290,7 +303,7 @@ const AdvisorOnboarding = () => {
                 once it's approved by our admin team.
               </p>
               <button
-                onClick={() => navigate("/")}
+                onClick={() => navigate("/advisor/dashboard")}
                 className="px-6 py-3 bg-black text-white font-semibold rounded-lg hover:bg-gray-900 transition"
               >
                 Go to Dashboard
