@@ -15,6 +15,7 @@ import { Navigate } from "react-router-dom";
 import IndianStockNews from "./pages/IndianStockNews.jsx";
 import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer.jsx";
+import AboutUsPage from "./components/AboutUs.jsx";
 
 const App = () => {
   const userData = useSelector((state) => state.user.userData);
@@ -48,6 +49,7 @@ const App = () => {
         />
         <Route path="/role-selection" element={<RoleSelection />} />
         <Route path="news" element={<IndianStockNews />} />
+        <Route path="about" element={<AboutUsPage />} />
         <Route path="/advisor/onboarding" element={<AdvisorOnboarding />} />
         <Route path="/advisor/dashboard" element={<AdvisorDashboard />} />
         <Route

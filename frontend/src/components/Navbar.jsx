@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
+import AboutUsPage from "./AboutUs";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import {
@@ -205,7 +206,7 @@ const NavbarContent = ({ userData, onLogout }) => {
           <div className="text-white/60 text-sm flex items-center gap-4">
             <Link to="/news">Trading News</Link>
             <span className="w-1 h-1 rounded-full bg-white/20"></span>
-            <span>About Us</span>
+            <Link to="/about">About Us </Link>
             {/* <span className="w-1 h-1 rounded-full bg-white/20"></span>
                         <span>SEBI Registered</span> */}
           </div>

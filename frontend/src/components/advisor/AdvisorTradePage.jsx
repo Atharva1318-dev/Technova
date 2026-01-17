@@ -496,12 +496,12 @@ const AdvisorTradePage = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Trade</h1>
-          <p className="text-gray-600 mt-1">Create signals and manage active trades</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Trade</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">Create signals and manage active trades</p>
         </div>
         <button
           onClick={() => setShowSignalCreator(!showSignalCreator)}
-          className="flex items-center gap-2 px-4 py-2 bg-[#1a1a2e] text-white rounded-lg hover:bg-[#16213e] transition font-medium"
+          className="flex items-center gap-2 px-4 py-2 bg-[#0056b3] text-white rounded-lg hover:bg-[#004996] transition font-medium shadow-md"
         >
           <Plus className="w-4 h-4" />
           Create New Signal
@@ -512,11 +512,11 @@ const AdvisorTradePage = () => {
         {/* Chart Section - 2/3 width */}
         <div className="lg:col-span-2 space-y-4">
           {/* Stock Selector and Controls */}
-          <div className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm space-y-4">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm space-y-4">
             {/* Search and Quick Select */}
             <div className="flex items-center gap-4 flex-wrap">
               <div className="flex-1 min-w-[250px] relative search-container">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
                 <input
                   type="text"
                   placeholder="Search stock by name or ISIN..."
@@ -526,12 +526,12 @@ const AdvisorTradePage = () => {
                     setShowSearchResults(true);
                   }}
                   onFocus={() => setShowSearchResults(true)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#1a1a2e]"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-[#0056b3] dark:focus:border-[#0056b3] bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 />
                 
                 {/* Search Results Dropdown */}
                 {showSearchResults && searchQuery && (
-                  <div className="absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                  <div className="absolute z-50 w-full mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                     {filteredStocks.length > 0 ? (
                       filteredStocks.slice(0, 10).map((stock) => (
                         <button
@@ -541,14 +541,14 @@ const AdvisorTradePage = () => {
                             setSearchQuery(stock.name);
                             setShowSearchResults(false);
                           }}
-                          className="w-full text-left px-4 py-2 hover:bg-gray-100 transition"
+                          className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition text-gray-900 dark:text-white"
                         >
-                          <div className="font-medium text-gray-900">{stock.name}</div>
-                          <div className="text-xs text-gray-500">{stock.ISIN}</div>
+                          <div className="font-medium">{stock.name}</div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">{stock.ISIN}</div>
                         </button>
                       ))
                     ) : (
-                      <div className="px-4 py-3 text-sm text-gray-500">No stocks found</div>
+                      <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">No stocks found</div>
                     )}
                   </div>
                 )}
@@ -564,8 +564,8 @@ const AdvisorTradePage = () => {
                     }}
                     className={`px-3 py-2 rounded-lg text-xs font-medium transition whitespace-nowrap ${
                       selectedStock?.ISIN === stock.ISIN
-                        ? "bg-[#1a1a2e] text-white"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        ? "bg-[#0056b3] text-white"
+                        : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
                     }`}
                   >
                     {stock.name.split(' ')[0]}
@@ -582,8 +582,8 @@ const AdvisorTradePage = () => {
                   onClick={() => setDataType("historical")}
                   className={`px-3 py-2 rounded-lg text-sm font-medium transition ${
                     dataType === "historical"
-                      ? "bg-[#1a1a2e] text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      ? "bg-[#0056b3] text-white"
+                      : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
                   }`}
                 >
                   Historical
@@ -599,10 +599,10 @@ const AdvisorTradePage = () => {
                   disabled={!isMarketOpen()}
                   className={`px-3 py-2 rounded-lg text-sm font-medium transition ${
                     dataType === "intraday"
-                      ? "bg-[#1a1a2e] text-white"
+                      ? "bg-[#0056b3] text-white"
                       : isMarketOpen()
-                      ? "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                      : "bg-gray-50 text-gray-400 cursor-not-allowed"
+                      ? "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+                      : "bg-gray-50 dark:bg-gray-900 text-gray-400 dark:text-gray-500 cursor-not-allowed"
                   }`}
                 >
                   Intraday {!isMarketOpen() && "🔒"}
@@ -612,22 +612,22 @@ const AdvisorTradePage = () => {
               {/* Historical Date Range */}
               {dataType === "historical" && (
                 <div className="flex items-center gap-2">
-                  <label className="text-sm text-gray-600">From:</label>
+                  <label className="text-sm text-gray-600 dark:text-gray-400">From:</label>
                   <input
                     type="date"
                     value={fromDate}
                     onChange={(e) => setFromDate(e.target.value)}
                     max={toDate}
-                    className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#1a1a2e]"
+                    className="px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:border-[#0056b3] dark:focus:border-[#0056b3] bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   />
-                  <label className="text-sm text-gray-600">To:</label>
+                  <label className="text-sm text-gray-600 dark:text-gray-400">To:</label>
                   <input
                     type="date"
                     value={toDate}
                     onChange={(e) => setToDate(e.target.value)}
                     min={fromDate}
                     max={new Date().toISOString().split('T')[0]}
-                    className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#1a1a2e]"
+                    className="px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:border-[#0056b3] dark:focus:border-[#0056b3] bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   />
                 </div>
               )}
@@ -639,7 +639,7 @@ const AdvisorTradePage = () => {
                   className={`px-3 py-2 rounded-lg text-sm font-medium transition ${
                     timeframe === "1"
                       ? "bg-blue-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
                   }`}
                 >
                   1 Min
@@ -649,7 +649,7 @@ const AdvisorTradePage = () => {
                   className={`px-3 py-2 rounded-lg text-sm font-medium transition ${
                     timeframe === "15"
                       ? "bg-blue-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
                   }`}
                 >
                   15 Min
@@ -657,9 +657,9 @@ const AdvisorTradePage = () => {
                 <button
                   onClick={fetchChartData}
                   disabled={!selectedStock}
-                  className="p-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <RefreshCw className="w-4 h-4 text-gray-700" />
+                  <RefreshCw className="w-4 h-4 text-gray-700 dark:text-gray-300" />
                 </button>
               </div>
             </div>
@@ -667,11 +667,11 @@ const AdvisorTradePage = () => {
 
           {/* Stock Info */}
           {stockInfo && (
-            <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">{stockInfo.symbol}</h2>
-                  <p className="text-3xl font-bold text-gray-900 mt-2">₹{stockInfo.price}</p>
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{stockInfo.symbol}</h2>
+                  <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">₹{stockInfo.price}</p>
                 </div>
                 <div className={`text-right ${parseFloat(stockInfo.change) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   <div className="flex items-center gap-2 justify-end">
@@ -689,32 +689,32 @@ const AdvisorTradePage = () => {
           )}
 
           {/* Chart */}
-          <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-gray-900">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white">
                 Price Chart ({timeframe} min - {dataType === "intraday" ? "Intraday" : `${fromDate} to ${toDate}`})
               </h3>
               {selectedStock && (
-                <span className="text-sm text-gray-500">ISIN: {selectedStock.ISIN}</span>
+                <span className="text-sm text-gray-500 dark:text-gray-400">ISIN: {selectedStock.ISIN}</span>
               )}
             </div>
             {!selectedStock ? (
-              <div className="flex flex-col items-center justify-center h-[400px] text-gray-500">
-                <Search className="w-16 h-16 mb-4 text-gray-300" />
+              <div className="flex flex-col items-center justify-center h-[400px] text-gray-500 dark:text-gray-400">
+                <Search className="w-16 h-16 mb-4 text-gray-300 dark:text-gray-600" />
                 <p className="text-lg font-medium">Select a stock to view chart</p>
                 <p className="text-sm">Search or click on a quick select button above</p>
               </div>
             ) : loading ? (
               <div className="flex items-center justify-center h-[400px]">
                 <div className="text-center">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1a1a2e] mx-auto mb-4"></div>
-                  <p className="text-gray-600">Loading chart data...</p>
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0056b3] mx-auto mb-4"></div>
+                  <p className="text-gray-600 dark:text-gray-400">Loading chart data...</p>
                 </div>
               </div>
             ) : chartData.length === 0 ? (
-              <div className="flex items-center justify-center h-[400px] text-gray-500">
+              <div className="flex items-center justify-center h-[400px] text-gray-500 dark:text-gray-400">
                 <div className="text-center">
-                  <AlertCircle className="w-16 h-16 mb-4 text-gray-300 mx-auto" />
+                  <AlertCircle className="w-16 h-16 mb-4 text-gray-300 dark:text-gray-600 mx-auto" />
                   <p className="text-lg font-medium">No data available</p>
                   <p className="text-sm">Try selecting different dates or timeframe</p>
                 </div>
@@ -722,23 +722,24 @@ const AdvisorTradePage = () => {
             ) : (
               <ResponsiveContainer width="100%" height={400}>
                 <LineChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0 dark:stroke-gray-700" />
                   <XAxis 
                     dataKey="time" 
-                    stroke="#666" 
+                    stroke="#666 dark:stroke-gray-400" 
                     tick={{ fontSize: 12 }}
                     interval="preserveStartEnd"
                   />
                   <YAxis 
-                    stroke="#666" 
+                    stroke="#666 dark:stroke-gray-400" 
                     domain={['auto', 'auto']}
                     tick={{ fontSize: 12 }}
                   />
                   <Tooltip 
                     contentStyle={{ 
-                      backgroundColor: '#fff', 
-                      border: '1px solid #ddd',
-                      borderRadius: '8px'
+                      backgroundColor: '#fff dark:bg-gray-800', 
+                      border: '1px solid #ddd dark:border-gray-700',
+                      borderRadius: '8px',
+                      color: '#333 dark:text-white'
                     }}
                     formatter={(value, name) => {
                       if (name === 'price') return [`₹${value.toFixed(2)}`, 'Close'];
@@ -748,7 +749,7 @@ const AdvisorTradePage = () => {
                   <Line 
                     type="monotone" 
                     dataKey="price" 
-                    stroke="#1a1a2e" 
+                    stroke="#0056b3" 
                     strokeWidth={2}
                     dot={false}
                     name="Close Price"
@@ -762,50 +763,50 @@ const AdvisorTradePage = () => {
 
         {/* Active Trades Sidebar - 1/3 width */}
         <div className="lg:col-span-1">
-          <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm sticky top-6">
-            <h3 className="text-lg font-bold text-gray-900 mb-4">Active & Pending Trades</h3>
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm sticky top-6">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Active & Pending Trades</h3>
             
             <div className="space-y-3 max-h-[calc(100vh-200px)] overflow-y-auto">
               {activeTrades.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  <TrendingUp className="w-12 h-12 mx-auto mb-2 text-gray-300" />
+                <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                  <TrendingUp className="w-12 h-12 mx-auto mb-2 text-gray-300 dark:text-gray-600" />
                   <p className="text-sm">No active trades</p>
                 </div>
               ) : (
                 activeTrades.map((trade) => (
                   <div 
                     key={trade._id}
-                    className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition"
+                    className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition bg-gray-50 dark:bg-gray-900"
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <span className="font-bold text-gray-900">{trade.symbol}</span>
+                      <span className="font-bold text-gray-900 dark:text-white">{trade.symbol}</span>
                       <span className={`text-xs px-2 py-1 rounded ${
                         trade.direction === 'buy' 
-                          ? 'bg-green-100 text-green-700' 
-                          : 'bg-red-100 text-red-700'
+                          ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' 
+                          : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
                       }`}>
                         {trade.direction.toUpperCase()}
                       </span>
                     </div>
                     
-                    <div className="text-sm space-y-1 text-gray-600">
+                    <div className="text-sm space-y-1 text-gray-600 dark:text-gray-400">
                       <div className="flex justify-between">
                         <span>Entry:</span>
-                        <span className="font-semibold">₹{trade.entryPrice}</span>
+                        <span className="font-semibold dark:text-white">₹{trade.entryPrice}</span>
                       </div>
                       <div className="flex justify-between">
                         <span>Target:</span>
-                        <span className="font-semibold text-green-600">₹{trade.target}</span>
+                        <span className="font-semibold text-green-600 dark:text-green-400">₹{trade.target}</span>
                       </div>
                       <div className="flex justify-between">
                         <span>SL:</span>
-                        <span className="font-semibold text-red-600">₹{trade.stopLoss}</span>
+                        <span className="font-semibold text-red-600 dark:text-red-400">₹{trade.stopLoss}</span>
                       </div>
                     </div>
 
                     <button
                       onClick={() => setEditingTrade(trade)}
-                      className="w-full mt-3 flex items-center justify-center gap-2 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition text-sm font-medium"
+                      className="w-full mt-3 flex items-center justify-center gap-2 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition text-sm font-medium text-gray-700 dark:text-gray-300"
                     >
                       <Edit2 className="w-4 h-4" />
                       Edit Trade
@@ -818,11 +819,11 @@ const AdvisorTradePage = () => {
         </div>
       </div>
 
-      {/* Create Signal Modal Popup */}
+      {/* Create Signal Modal Popup - FIXED TEXT COLOR */}
       {showSignalCreator && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
-            <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-[#1a1a2e] to-[#16213e]">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-[#0056b3] to-[#4c1d95]">
               <h3 className="text-2xl font-bold text-white">Create New Trading Signal</h3>
               <button
                 onClick={() => setShowSignalCreator(false)}
@@ -835,26 +836,26 @@ const AdvisorTradePage = () => {
             <div className="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
               <form onSubmit={handleCreateSignal} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Instrument Selection */}
+                  {/* Instrument Selection - FIXED */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-800 mb-3">
+                    <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
                       Instrument Type *
                     </label>
                     <select
                       value={signalForm.instrument}
                       onChange={(e) => setSignalForm({ ...signalForm, instrument: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#1a1a2e] focus:ring-2 focus:ring-[#1a1a2e]/20 transition-all"
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:border-[#0056b3] focus:ring-2 focus:ring-[#0056b3]/20 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                     >
-                      <option value="stock">Stock</option>
-                      <option value="futures">Futures & Options</option>
-                      <option value="index">Index</option>
-                      <option value="commodity">Commodity</option>
+                      <option value="stock" className="text-gray-900 dark:text-white">Stock</option>
+                      <option value="futures" className="text-gray-900 dark:text-white">Futures & Options</option>
+                      <option value="index" className="text-gray-900 dark:text-white">Index</option>
+                      <option value="commodity" className="text-gray-900 dark:text-white">Commodity</option>
                     </select>
                   </div>
 
-                  {/* Symbol */}
+                  {/* Symbol - FIXED */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-800 mb-3">
+                    <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
                       Symbol *
                     </label>
                     <input
@@ -862,14 +863,14 @@ const AdvisorTradePage = () => {
                       value={signalForm.symbol}
                       onChange={(e) => setSignalForm({ ...signalForm, symbol: e.target.value.toUpperCase() })}
                       placeholder="e.g., RELIANCE, NIFTY"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#1a1a2e] focus:ring-2 focus:ring-[#1a1a2e]/20 transition-all"
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:border-[#0056b3] focus:ring-2 focus:ring-[#0056b3]/20 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                       required
                     />
                   </div>
 
-                  {/* Action Type */}
+                  {/* Action Type - FIXED */}
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-semibold text-gray-800 mb-3">
+                    <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
                       Action Type *
                     </label>
                     <div className="flex gap-4">
@@ -879,7 +880,7 @@ const AdvisorTradePage = () => {
                         className={`flex-1 py-3 rounded-xl font-semibold transition-all ${
                           signalForm.action === "buy"
                             ? "bg-green-600 text-white shadow-lg transform scale-105"
-                            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                            : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
                         }`}
                       >
                         📈 Buy
@@ -890,7 +891,7 @@ const AdvisorTradePage = () => {
                         className={`flex-1 py-3 rounded-xl font-semibold transition-all ${
                           signalForm.action === "sell"
                             ? "bg-red-600 text-white shadow-lg transform scale-105"
-                            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                            : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
                         }`}
                       >
                         📉 Sell
@@ -898,99 +899,99 @@ const AdvisorTradePage = () => {
                     </div>
                   </div>
 
-                  {/* Entry Price */}
+                  {/* Entry Price - FIXED */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-800 mb-3">
+                    <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
                       Entry Price * (Auto-locked)
                     </label>
                     <div className="relative">
-                      <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">₹</span>
+                      <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 font-medium">₹</span>
                       <input
                         type="number"
                         step="0.01"
                         value={signalForm.entryPrice}
                         onChange={(e) => setSignalForm({ ...signalForm, entryPrice: e.target.value })}
                         placeholder="Current market price"
-                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#1a1a2e] focus:ring-2 focus:ring-[#1a1a2e]/20 transition-all"
+                        className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:border-[#0056b3] focus:ring-2 focus:ring-[#0056b3]/20 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                         required
                       />
                     </div>
                   </div>
 
-                  {/* Target Price */}
+                  {/* Target Price - FIXED */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-800 mb-3">
+                    <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
                       Target Price *
                     </label>
                     <div className="relative">
-                      <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">₹</span>
+                      <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 font-medium">₹</span>
                       <input
                         type="number"
                         step="0.01"
                         value={signalForm.target}
                         onChange={(e) => setSignalForm({ ...signalForm, target: e.target.value })}
                         placeholder="Target price"
-                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#1a1a2e] focus:ring-2 focus:ring-[#1a1a2e]/20 transition-all"
+                        className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:border-[#0056b3] focus:ring-2 focus:ring-[#0056b3]/20 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                         required
                       />
                     </div>
                   </div>
 
-                  {/* Stop Loss */}
+                  {/* Stop Loss - FIXED */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-800 mb-3">
+                    <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
                       Stop Loss *
                     </label>
                     <div className="relative">
-                      <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">₹</span>
+                      <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 font-medium">₹</span>
                       <input
                         type="number"
                         step="0.01"
                         value={signalForm.stopLoss}
                         onChange={(e) => setSignalForm({ ...signalForm, stopLoss: e.target.value })}
                         placeholder="Stop loss price"
-                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#1a1a2e] focus:ring-2 focus:ring-[#1a1a2e]/20 transition-all"
+                        className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:border-[#0056b3] focus:ring-2 focus:ring-[#0056b3]/20 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                         required
                       />
                     </div>
                   </div>
 
-                  {/* Risk Level */}
+                  {/* Risk Level - FIXED */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-800 mb-3">
+                    <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
                       Risk Level *
                     </label>
                     <select
                       value={signalForm.riskLevel}
                       onChange={(e) => setSignalForm({ ...signalForm, riskLevel: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#1a1a2e] focus:ring-2 focus:ring-[#1a1a2e]/20 transition-all"
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:border-[#0056b3] focus:ring-2 focus:ring-[#0056b3]/20 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                     >
-                      <option value="low">🟢 Low Risk</option>
-                      <option value="medium">🟡 Medium Risk</option>
-                      <option value="high">🔴 High Risk</option>
+                      <option value="low" className="text-gray-900 dark:text-white">🟢 Low Risk</option>
+                      <option value="medium" className="text-gray-900 dark:text-white">🟡 Medium Risk</option>
+                      <option value="high" className="text-gray-900 dark:text-white">🔴 High Risk</option>
                     </select>
                   </div>
 
-                  {/* Validity */}
+                  {/* Validity - FIXED */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-800 mb-3">
+                    <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
                       Validity *
                     </label>
                     <select
                       value={signalForm.validity}
                       onChange={(e) => setSignalForm({ ...signalForm, validity: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#1a1a2e] focus:ring-2 focus:ring-[#1a1a2e]/20 transition-all"
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:border-[#0056b3] focus:ring-2 focus:ring-[#0056b3]/20 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                     >
-                      <option value="intraday">Intraday</option>
-                      <option value="positional">Positional</option>
-                      <option value="btst">BTST</option>
+                      <option value="intraday" className="text-gray-900 dark:text-white">Intraday</option>
+                      <option value="positional" className="text-gray-900 dark:text-white">Positional</option>
+                      <option value="btst" className="text-gray-900 dark:text-white">BTST</option>
                     </select>
                   </div>
                 </div>
 
-                {/* Notes */}
+                {/* Notes - FIXED */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-800 mb-3">
+                  <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
                     Rationale/Notes (Optional)
                   </label>
                   <textarea
@@ -998,18 +999,18 @@ const AdvisorTradePage = () => {
                     onChange={(e) => setSignalForm({ ...signalForm, notes: e.target.value })}
                     placeholder="Add your detailed analysis, market reasoning, and trading strategy..."
                     rows={4}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#1a1a2e] focus:ring-2 focus:ring-[#1a1a2e]/20 transition-all resize-none"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:border-[#0056b3] focus:ring-2 focus:ring-[#0056b3]/20 transition-all resize-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                   />
                 </div>
 
                 {/* Warning */}
-                <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-xl p-5 flex items-start gap-4">
+                <div className="bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-5 flex items-start gap-4">
                   <div className="flex-shrink-0">
-                    <AlertCircle className="w-6 h-6 text-yellow-600" />
+                    <AlertCircle className="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-yellow-800 mb-1">⚠️ Important Notice</p>
-                    <p className="text-sm text-yellow-700">
+                    <p className="text-sm font-semibold text-yellow-800 dark:text-yellow-300 mb-1">⚠️ Important Notice</p>
+                    <p className="text-sm text-yellow-700 dark:text-yellow-400">
                       Once published, this trading signal cannot be edited or deleted. It will be visible to all your subscribers. Please review all details carefully before publishing.
                     </p>
                   </div>
@@ -1020,13 +1021,13 @@ const AdvisorTradePage = () => {
                   <button
                     type="button"
                     onClick={() => setShowSignalCreator(false)}
-                    className="flex-1 py-3 px-6 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-all"
+                    className="flex-1 py-3 px-6 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-all"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 py-3 px-6 bg-gradient-to-r from-[#1a1a2e] to-[#16213e] text-white font-semibold rounded-xl hover:shadow-xl transition-all"
+                    className="flex-1 py-3 px-6 bg-gradient-to-r from-[#0056b3] to-[#4c1d95] text-white font-semibold rounded-xl hover:shadow-xl transition-all"
                   >
                     🚀 Publish Signal
                   </button>
@@ -1040,20 +1041,20 @@ const AdvisorTradePage = () => {
       {/* Edit Trade Modal */}
       {editingTrade && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-md w-full">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold text-gray-900">Edit Trade</h3>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white">Edit Trade</h3>
               <button
                 onClick={() => setEditingTrade(null)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition"
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition"
               >
-                <CloseIcon className="w-5 h-5 text-gray-500" />
+                <CloseIcon className="w-5 h-5 text-gray-500 dark:text-gray-400" />
               </button>
             </div>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Target Price
                 </label>
                 <input
@@ -1061,12 +1062,12 @@ const AdvisorTradePage = () => {
                   step="0.01"
                   defaultValue={editingTrade.target}
                   id="edit-target"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#1a1a2e]"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-[#0056b3] dark:focus:border-[#0056b3] bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Stop Loss
                 </label>
                 <input
@@ -1074,7 +1075,7 @@ const AdvisorTradePage = () => {
                   step="0.01"
                   defaultValue={editingTrade.stopLoss}
                   id="edit-sl"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#1a1a2e]"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-[#0056b3] dark:focus:border-[#0056b3] bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 />
               </div>
 
@@ -1084,7 +1085,7 @@ const AdvisorTradePage = () => {
                   const stopLoss = document.getElementById("edit-sl").value;
                   handleEditTrade(editingTrade._id, { target, stopLoss });
                 }}
-                className="w-full py-3 bg-[#1a1a2e] text-white font-semibold rounded-lg hover:bg-[#16213e] transition"
+                className="w-full py-3 bg-[#0056b3] text-white font-semibold rounded-lg hover:bg-[#004996] transition"
               >
                 Save Changes
               </button>
@@ -1097,4 +1098,3 @@ const AdvisorTradePage = () => {
 };
 
 export default AdvisorTradePage;
-
