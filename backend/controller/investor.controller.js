@@ -3,6 +3,35 @@ import Trade from "../models/trade.models.js";
 import User from "../models/user.models.js";
 import { emitPaperTradeUpdate } from "../services/socket.service.js";
 
+
+// Get signals from followed advisors
+export const getFollowedAdvisorsSignals = async (req, res) => {
+  try {
+    const investorId = req.userId;
+
+    const investor = await User.findById(investorId).select("followedAdvisors");
+
+    if (!investor || investor.followedAdvisors.length === 0) {
+      return res.status(200).json({ signals: [] });
+    }
+
+    const Signal = (await import("../models/signal.models.js")).default;
+
+    const signals = await Signal.find({
+      advisorId: { $in: investor.followedAdvisors },
+      status: { $ne: "cancelled" },
+    })
+      .populate("advisorId", "name profilePicture trustScore")
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({ signals });
+  } catch (error) {
+    console.error("Error in getFollowedAdvisorsSignals:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+
 // Follow a signal (create paper trade)
 export const followSignal = async (req, res) => {
   try {
@@ -274,4 +303,5 @@ export default {
   closePaperTrade,
   getPortfolioSummary,
   toggleFollowAdvisor,
+  getFollowedAdvisorsSignals,
 };

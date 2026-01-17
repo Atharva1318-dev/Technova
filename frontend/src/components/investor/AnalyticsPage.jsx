@@ -9,26 +9,31 @@ const AnalyticsPage = () => {
   const [paperTrades, setPaperTrades] = useState([]);
   const [loading, setLoading] = useState(true);
   const { serverUrl } = useContext(AuthDataContext);
+  const [followedSignals, setFollowedSignals] = useState([]);
+
 
   useEffect(() => {
     fetchData();
   }, []);
 
   const fetchData = async () => {
-    try {
-      const [summaryRes, tradesRes] = await Promise.all([
-        axios.get(`${serverUrl}/api/investor/portfolio/summary`, { withCredentials: true }),
-        axios.get(`${serverUrl}/api/investor/paper-trades?status=closed`, { withCredentials: true }),
-      ]);
+  try {
+    const [summaryRes, tradesRes, signalsRes] = await Promise.all([
+      axios.get(`${serverUrl}/api/investor/portfolio/summary`, { withCredentials: true }),
+      axios.get(`${serverUrl}/api/investor/paper-trades?status=closed`, { withCredentials: true }),
+      axios.get(`${serverUrl}/api/investor/followed-advisors/signals`, { withCredentials: true }), // ✅ NEW
+    ]);
 
-      setSummary(summaryRes.data.summary);
-      setPaperTrades(tradesRes.data.paperTrades);
-    } catch (error) {
-      console.error("Error fetching analytics:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    setSummary(summaryRes.data.summary);
+    setPaperTrades(tradesRes.data.paperTrades);
+    setFollowedSignals(signalsRes.data.signals); // ✅ NEW
+  } catch (error) {
+    console.error("Error fetching analytics:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleRefresh = () => {
     setLoading(true);
@@ -330,6 +335,77 @@ const AnalyticsPage = () => {
           </div>
         </div>
       </div>
+      {/* Followed Advisors Signals */}
+<div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-300 p-6 shadow-sm">
+  <h3 className="text-lg font-bold text-gray-900 mb-4">
+    Signals from Advisors You Follow
+  </h3>
+
+  {followedSignals.length === 0 ? (
+    <p className="text-gray-600">
+      You are not following any advisors or no active signals available.
+    </p>
+  ) : (
+    <div className="space-y-3">
+      {followedSignals.map((signal) => (
+        <div
+          key={signal._id}
+          className="flex items-center gap-6 p-4 bg-white border border-gray-200 rounded-xl hover:shadow-md transition"
+        >
+          {/* Advisor */}
+          <div className="w-40">
+            <p className="font-semibold text-gray-900">
+              {signal.advisorId?.name}
+            </p>
+            <p className="text-xs text-gray-500">
+              Trust {signal.advisorId?.trustScore || 0}
+            </p>
+          </div>
+
+          {/* Symbol */}
+          <div>
+            <p className="font-bold text-gray-900">{signal.symbol}</p>
+            <p className="text-xs text-gray-500 capitalize">
+              {signal.assetClass}
+            </p>
+          </div>
+
+          {/* Direction */}
+          <span
+            className={`px-3 py-1 rounded-full text-sm font-semibold ${
+              signal.direction === "buy"
+                ? "bg-green-100 text-green-700"
+                : "bg-red-100 text-red-700"
+            }`}
+          >
+            {signal.direction.toUpperCase()}
+          </span>
+
+          {/* Prices */}
+          <div className="ml-auto flex gap-6">
+            <div>
+              <p className="text-xs text-gray-500">Entry</p>
+              <p className="font-semibold">₹{signal.entryPrice.toFixed(2)}</p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500">SL</p>
+              <p className="font-semibold text-red-600">
+                ₹{signal.stopLoss.toFixed(2)}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500">Target</p>
+              <p className="font-semibold text-green-600">
+                ₹{signal.target.toFixed(2)}
+              </p>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  )}
+</div>
+
     </div>
   );
 };

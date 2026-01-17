@@ -23,10 +23,10 @@ const Sidebar = ({ activePage, setActivePage, userData, onLogout }) => {
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     { id: "hot-stocks", label: "Hot Stocks", icon: Flame },
     { id: "signals", label: "Live Signals", icon: TrendingUp },
-    { id: "portfolio", label: "My Portfolio", icon: Briefcase },
+    // { id: "portfolio", label: "My Portfolio", icon: Briefcase },
     { id: "advisors", label: "Advisors", icon: Users },
     { id: "analytics", label: "Analytics", icon: BarChart3 },
-    { id: "wallet", label: "Wallet", icon: Wallet },
+    // { id: "wallet", label: "Wallet", icon: Wallet },
     { id: "settings", label: "Settings", icon: Settings },
   ];
 

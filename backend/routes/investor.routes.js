@@ -7,11 +7,20 @@ import {
   closePaperTrade,
   getPortfolioSummary,
   toggleFollowAdvisor,
+  getFollowedAdvisorsSignals,
 } from "../controller/investor.controller.js";
 
 import { getAllAdvisors } from "../controller/advisor.controller.js";
 
 const InvestorRouter = express.Router();
+
+InvestorRouter.get(
+  "/followed-advisors/signals",
+  isAuth,
+  checkRole("investor"),
+  getFollowedAdvisorsSignals
+);
+
 
 // Paper trading
 InvestorRouter.post(
