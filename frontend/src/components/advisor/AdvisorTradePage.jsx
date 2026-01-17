@@ -758,200 +758,6 @@ const AdvisorTradePage = () => {
             )}
           </div>
 
-          {/* Signal Creator Form */}
-          {showSignalCreator && (
-            <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-bold text-gray-900">Create New Signal</h3>
-                <button
-                  onClick={() => setShowSignalCreator(false)}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition"
-                >
-                  <CloseIcon className="w-5 h-5 text-gray-500" />
-                </button>
-              </div>
-
-              <form onSubmit={handleCreateSignal} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Instrument Selection */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Instrument Type *
-                    </label>
-                    <select
-                      value={signalForm.instrument}
-                      onChange={(e) => setSignalForm({ ...signalForm, instrument: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#1a1a2e]"
-                    >
-                      <option value="stock">Stock</option>
-                      <option value="futures">Futures & Options</option>
-                      <option value="index">Index</option>
-                      <option value="commodity">Commodity</option>
-                    </select>
-                  </div>
-
-                  {/* Symbol */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Symbol *
-                    </label>
-                    <input
-                      type="text"
-                      value={signalForm.symbol}
-                      onChange={(e) => setSignalForm({ ...signalForm, symbol: e.target.value.toUpperCase() })}
-                      placeholder="e.g., RELIANCE, NIFTY"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#1a1a2e]"
-                      required
-                    />
-                  </div>
-
-                  {/* Action Type */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Action Type *
-                    </label>
-                    <div className="flex gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setSignalForm({ ...signalForm, action: "buy" })}
-                        className={`flex-1 py-2 rounded-lg font-medium transition ${
-                          signalForm.action === "buy"
-                            ? "bg-green-600 text-white"
-                            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                        }`}
-                      >
-                        Buy
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setSignalForm({ ...signalForm, action: "sell" })}
-                        className={`flex-1 py-2 rounded-lg font-medium transition ${
-                          signalForm.action === "sell"
-                            ? "bg-red-600 text-white"
-                            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                        }`}
-                      >
-                        Sell
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Entry Price */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Entry Price * (Auto-locked)
-                    </label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={signalForm.entryPrice}
-                      onChange={(e) => setSignalForm({ ...signalForm, entryPrice: e.target.value })}
-                      placeholder="Current market price"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#1a1a2e]"
-                      required
-                    />
-                  </div>
-
-                  {/* Target Price */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Target Price *
-                    </label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={signalForm.target}
-                      onChange={(e) => setSignalForm({ ...signalForm, target: e.target.value })}
-                      placeholder="Target price"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#1a1a2e]"
-                      required
-                    />
-                  </div>
-
-                  {/* Stop Loss */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Stop Loss *
-                    </label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={signalForm.stopLoss}
-                      onChange={(e) => setSignalForm({ ...signalForm, stopLoss: e.target.value })}
-                      placeholder="Stop loss price"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#1a1a2e]"
-                      required
-                    />
-                  </div>
-
-                  {/* Risk Level */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Risk Level *
-                    </label>
-                    <select
-                      value={signalForm.riskLevel}
-                      onChange={(e) => setSignalForm({ ...signalForm, riskLevel: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#1a1a2e]"
-                    >
-                      <option value="low">Low</option>
-                      <option value="medium">Medium</option>
-                      <option value="high">High</option>
-                    </select>
-                  </div>
-
-                  {/* Validity */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Validity *
-                    </label>
-                    <select
-                      value={signalForm.validity}
-                      onChange={(e) => setSignalForm({ ...signalForm, validity: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#1a1a2e]"
-                    >
-                      <option value="intraday">Intraday</option>
-                      <option value="positional">Positional</option>
-                      <option value="btst">BTST</option>
-                    </select>
-                  </div>
-                </div>
-
-                {/* Notes */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Rationale/Notes (Optional)
-                  </label>
-                  <textarea
-                    value={signalForm.notes}
-                    onChange={(e) => setSignalForm({ ...signalForm, notes: e.target.value })}
-                    placeholder="Add your analysis or reasoning..."
-                    rows={3}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#1a1a2e] resize-none"
-                  />
-                </div>
-
-                {/* Warning */}
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 flex items-start gap-3">
-                  <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-medium text-yellow-800">Important Notice</p>
-                    <p className="text-xs text-yellow-700 mt-1">
-                      Once published, this trade cannot be edited or deleted. Please review all details carefully.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Submit Button */}
-                <button
-                  type="submit"
-                  className="w-full py-3 bg-[#1a1a2e] text-white font-semibold rounded-lg hover:bg-[#16213e] transition"
-                >
-                  Publish Signal
-                </button>
-              </form>
-            </div>
-          )}
         </div>
 
         {/* Active Trades Sidebar - 1/3 width */}
@@ -1011,6 +817,225 @@ const AdvisorTradePage = () => {
           </div>
         </div>
       </div>
+
+      {/* Create Signal Modal Popup */}
+      {showSignalCreator && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-[#1a1a2e] to-[#16213e]">
+              <h3 className="text-2xl font-bold text-white">Create New Trading Signal</h3>
+              <button
+                onClick={() => setShowSignalCreator(false)}
+                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+              >
+                <CloseIcon className="w-6 h-6 text-white" />
+              </button>
+            </div>
+
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+              <form onSubmit={handleCreateSignal} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Instrument Selection */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-800 mb-3">
+                      Instrument Type *
+                    </label>
+                    <select
+                      value={signalForm.instrument}
+                      onChange={(e) => setSignalForm({ ...signalForm, instrument: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#1a1a2e] focus:ring-2 focus:ring-[#1a1a2e]/20 transition-all"
+                    >
+                      <option value="stock">Stock</option>
+                      <option value="futures">Futures & Options</option>
+                      <option value="index">Index</option>
+                      <option value="commodity">Commodity</option>
+                    </select>
+                  </div>
+
+                  {/* Symbol */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-800 mb-3">
+                      Symbol *
+                    </label>
+                    <input
+                      type="text"
+                      value={signalForm.symbol}
+                      onChange={(e) => setSignalForm({ ...signalForm, symbol: e.target.value.toUpperCase() })}
+                      placeholder="e.g., RELIANCE, NIFTY"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#1a1a2e] focus:ring-2 focus:ring-[#1a1a2e]/20 transition-all"
+                      required
+                    />
+                  </div>
+
+                  {/* Action Type */}
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-semibold text-gray-800 mb-3">
+                      Action Type *
+                    </label>
+                    <div className="flex gap-4">
+                      <button
+                        type="button"
+                        onClick={() => setSignalForm({ ...signalForm, action: "buy" })}
+                        className={`flex-1 py-3 rounded-xl font-semibold transition-all ${
+                          signalForm.action === "buy"
+                            ? "bg-green-600 text-white shadow-lg transform scale-105"
+                            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        }`}
+                      >
+                        📈 Buy
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setSignalForm({ ...signalForm, action: "sell" })}
+                        className={`flex-1 py-3 rounded-xl font-semibold transition-all ${
+                          signalForm.action === "sell"
+                            ? "bg-red-600 text-white shadow-lg transform scale-105"
+                            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        }`}
+                      >
+                        📉 Sell
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Entry Price */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-800 mb-3">
+                      Entry Price * (Auto-locked)
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">₹</span>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={signalForm.entryPrice}
+                        onChange={(e) => setSignalForm({ ...signalForm, entryPrice: e.target.value })}
+                        placeholder="Current market price"
+                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#1a1a2e] focus:ring-2 focus:ring-[#1a1a2e]/20 transition-all"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  {/* Target Price */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-800 mb-3">
+                      Target Price *
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">₹</span>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={signalForm.target}
+                        onChange={(e) => setSignalForm({ ...signalForm, target: e.target.value })}
+                        placeholder="Target price"
+                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#1a1a2e] focus:ring-2 focus:ring-[#1a1a2e]/20 transition-all"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  {/* Stop Loss */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-800 mb-3">
+                      Stop Loss *
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">₹</span>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={signalForm.stopLoss}
+                        onChange={(e) => setSignalForm({ ...signalForm, stopLoss: e.target.value })}
+                        placeholder="Stop loss price"
+                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#1a1a2e] focus:ring-2 focus:ring-[#1a1a2e]/20 transition-all"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  {/* Risk Level */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-800 mb-3">
+                      Risk Level *
+                    </label>
+                    <select
+                      value={signalForm.riskLevel}
+                      onChange={(e) => setSignalForm({ ...signalForm, riskLevel: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#1a1a2e] focus:ring-2 focus:ring-[#1a1a2e]/20 transition-all"
+                    >
+                      <option value="low">🟢 Low Risk</option>
+                      <option value="medium">🟡 Medium Risk</option>
+                      <option value="high">🔴 High Risk</option>
+                    </select>
+                  </div>
+
+                  {/* Validity */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-800 mb-3">
+                      Validity *
+                    </label>
+                    <select
+                      value={signalForm.validity}
+                      onChange={(e) => setSignalForm({ ...signalForm, validity: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#1a1a2e] focus:ring-2 focus:ring-[#1a1a2e]/20 transition-all"
+                    >
+                      <option value="intraday">Intraday</option>
+                      <option value="positional">Positional</option>
+                      <option value="btst">BTST</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Notes */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-800 mb-3">
+                    Rationale/Notes (Optional)
+                  </label>
+                  <textarea
+                    value={signalForm.notes}
+                    onChange={(e) => setSignalForm({ ...signalForm, notes: e.target.value })}
+                    placeholder="Add your detailed analysis, market reasoning, and trading strategy..."
+                    rows={4}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#1a1a2e] focus:ring-2 focus:ring-[#1a1a2e]/20 transition-all resize-none"
+                  />
+                </div>
+
+                {/* Warning */}
+                <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-xl p-5 flex items-start gap-4">
+                  <div className="flex-shrink-0">
+                    <AlertCircle className="w-6 h-6 text-yellow-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-yellow-800 mb-1">⚠️ Important Notice</p>
+                    <p className="text-sm text-yellow-700">
+                      Once published, this trading signal cannot be edited or deleted. It will be visible to all your subscribers. Please review all details carefully before publishing.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-4 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowSignalCreator(false)}
+                    className="flex-1 py-3 px-6 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-all"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 py-3 px-6 bg-gradient-to-r from-[#1a1a2e] to-[#16213e] text-white font-semibold rounded-xl hover:shadow-xl transition-all"
+                  >
+                    🚀 Publish Signal
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Edit Trade Modal */}
       {editingTrade && (
