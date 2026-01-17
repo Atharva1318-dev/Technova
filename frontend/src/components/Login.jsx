@@ -2,21 +2,24 @@ import React, { useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { AuthDataContext } from "../context/AuthDataContext";
-import { Lock, Mail } from "lucide-react";
+import { Lock, Mail, UserCircle, TrendingUp } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { setUserData } from "../redux/userSlice";
 import { signInWithPopup } from "firebase/auth";
 import { auth, provider } from "../utils/firebase.js";
+
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [selectedRole, setSelectedRole] = useState("investor");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { serverUrl } = useContext(AuthDataContext);
   const dispatch = useDispatch();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -34,7 +37,22 @@ export default function Login() {
       );
       dispatch(setUserData(res.data.user));
       toast.success("Login Successful");
-      navigate("/");
+      
+      // Redirect based on user's actual role
+      const user = res.data.user;
+      if (user.role === "advisor") {
+        if (!user.isVerified) {
+          navigate("/advisor/onboarding");
+        } else {
+          navigate("/advisor/dashboard");
+        }
+      } else if (user.role === "investor") {
+        navigate("/investor/dashboard");
+      } else if (user.role === "admin") {
+        navigate("/admin/panel");
+      } else {
+        navigate("/");
+      }
     } catch (err) {
       toast.error("Login Failed");
       setError(err.response?.data?.message || "Login failed");
@@ -42,20 +60,46 @@ export default function Login() {
       setLoading(false);
     }
   };
+
   const handleGoogleAuth = async () => {
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
       const name = user.displayName;
       const email = user.email;
+      
+      // Try to login first (existing user)
       const res = await axios.post(
         `${serverUrl}/api/auth/google`,
         { name, email },
         { withCredentials: true }
       );
+      
+      // Check if role selection is required (new user)
+      if (res.data.requiresRole) {
+        // Store user data temporarily and redirect to role selection
+        sessionStorage.setItem("pendingGoogleAuth", JSON.stringify({ name, email }));
+        navigate("/role-selection");
+        return;
+      }
+      
       dispatch(setUserData(res.data.user));
       toast.success("Google Sign-In Successful");
-      navigate("/");
+      
+      // Redirect based on role
+      if (res.data.user.role === "advisor") {
+        if (!res.data.user.isVerified) {
+          navigate("/advisor/onboarding");
+        } else {
+          navigate("/advisor/dashboard");
+        }
+      } else if (res.data.user.role === "investor") {
+        navigate("/investor/dashboard");
+      } else if (res.data.user.role === "admin") {
+        navigate("/admin/panel");
+      } else {
+        navigate("/");
+      }
     } catch (error) {
       console.error("Google Sign-In Failed", error);
       toast.error("Google Sign-In Failed");
@@ -75,6 +119,46 @@ export default function Login() {
             {error}
           </div>
         )}
+
+        {/* Role Selector (Visual Only) */}
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-3">
+            Login as:
+          </label>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => setSelectedRole("investor")}
+              className={`p-3 rounded-lg border-2 transition text-left ${
+                selectedRole === "investor"
+                  ? "border-black bg-black text-white"
+                  : "border-gray-200 hover:border-gray-300"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <UserCircle className="w-4 h-4" />
+                <span className="font-semibold text-sm">Investor</span>
+              </div>
+            </button>
+            <button
+              type="button"
+              onClick={() => setSelectedRole("advisor")}
+              className={`p-3 rounded-lg border-2 transition text-left ${
+                selectedRole === "advisor"
+                  ? "border-black bg-black text-white"
+                  : "border-gray-200 hover:border-gray-300"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-4 h-4" />
+                <span className="font-semibold text-sm">Advisor</span>
+              </div>
+            </button>
+          </div>
+          <p className="text-xs text-gray-500 mt-2">
+            Note: You'll be redirected based on your account type
+          </p>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-4 mb-6">
           <div className="relative">

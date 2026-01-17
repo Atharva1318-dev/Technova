@@ -2,17 +2,19 @@ import React, { useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { AuthDataContext } from "../context/AuthDataContext";
-import { Lock, Mail, User } from "lucide-react";
+import { Lock, Mail, User, UserCircle, TrendingUp } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { setUserData } from "../redux/userSlice";
 import { signInWithPopup } from "firebase/auth";
 import { auth, provider } from "../utils/firebase.js";
+
 export default function SignUp() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState("investor");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -31,13 +33,18 @@ export default function SignUp() {
     try {
       const res = await axios.post(
         `${serverUrl}/api/auth/signup`,
-        { name, email, password },
+        { name, email, password, role },
         { withCredentials: true }
       );
-        dispatch(setUserData(res.data.user));
-        toast.success("Signup Successful");
-        navigate("/");
+      dispatch(setUserData(res.data.user));
+      toast.success("Signup Successful");
       
+      // Redirect based on role
+      if (role === "advisor") {
+        navigate("/advisor/onboarding");
+      } else {
+        navigate("/investor/dashboard");
+      }
     } catch (err) {
       toast.error("Signup Failed");
       setError(err.response?.data?.message || "Signup failed");
@@ -49,18 +56,28 @@ export default function SignUp() {
   const handleGoogleAuth = async () => {
     try {
       const result = await signInWithPopup(auth, provider);
-      const user=result.user;
-      const name=user.displayName;
-      const email=user.email;
-      const res=await axios.post(`${serverUrl}/api/auth/google`,{name,email},{withCredentials:true});
+      const user = result.user;
+      const name = user.displayName;
+      const email = user.email;
+      
+      const res = await axios.post(
+        `${serverUrl}/api/auth/google`,
+        { name, email, role },
+        { withCredentials: true }
+      );
+      
       dispatch(setUserData(res.data.user));
-      toast.success("Google Sign-In Successful");
-      navigate("/");
+      toast.success("Google Sign-Up Successful");
       
+      // Redirect based on role
+      if (role === "advisor") {
+        navigate("/advisor/onboarding");
+      } else {
+        navigate("/investor/dashboard");
+      }
     } catch (error) {
-      console.error("Google Sign-In Failed", error);
-      toast.error("Google Sign-In Failed");
-      
+      console.error("Google Sign-Up Failed", error);
+      toast.error("Google Sign-Up Failed");
     }
   };
 
@@ -79,6 +96,49 @@ export default function SignUp() {
             {error}
           </div>
         )}
+
+        {/* Role Selection */}
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-3">
+            I want to sign up as:
+          </label>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => setRole("investor")}
+              className={`p-4 rounded-lg border-2 transition text-left ${
+                role === "investor"
+                  ? "border-black bg-black text-white"
+                  : "border-gray-200 hover:border-gray-300"
+              }`}
+            >
+              <div className="flex items-center gap-2 mb-1">
+                <UserCircle className="w-5 h-5" />
+                <span className="font-semibold">Investor</span>
+              </div>
+              <p className={`text-xs ${role === "investor" ? "text-white/80" : "text-gray-500"}`}>
+                Follow signals & paper trade
+              </p>
+            </button>
+            <button
+              type="button"
+              onClick={() => setRole("advisor")}
+              className={`p-4 rounded-lg border-2 transition text-left ${
+                role === "advisor"
+                  ? "border-black bg-black text-white"
+                  : "border-gray-200 hover:border-gray-300"
+              }`}
+            >
+              <div className="flex items-center gap-2 mb-1">
+                <TrendingUp className="w-5 h-5" />
+                <span className="font-semibold">Advisor</span>
+              </div>
+              <p className={`text-xs ${role === "advisor" ? "text-white/80" : "text-gray-500"}`}>
+                Share trading signals
+              </p>
+            </button>
+          </div>
+        </div>
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4 mb-6">

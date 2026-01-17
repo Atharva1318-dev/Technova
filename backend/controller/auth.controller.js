@@ -4,10 +4,14 @@ import jwt from "jsonwebtoken";
 import {generateToken} from "../utils/token.js";
 const SignUp = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, role } = req.body;
     if (!name || !email || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
+    
+    // Validate role
+    const userRole = role && ["advisor", "investor"].includes(role) ? role : "investor";
+    
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: "User already exists" });
@@ -17,6 +21,7 @@ const SignUp = async (req, res) => {
       name,
       email,
       password: hashedPassword,
+      role: userRole,
     });
     const token = generateToken({ id: newUser._id });
     res.cookie("token", token, {
@@ -58,7 +63,7 @@ const Login = async (req, res) => {
 
 const googleAuth = async (req, res) => {
   try {
-    const { name, email } = req.body;
+    const { name, email, role } = req.body;
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       const token = generateToken({ id: existingUser._id });
@@ -70,7 +75,21 @@ const googleAuth = async (req, res) => {
         .status(200)
         .json({ message: "Login successful", user: existingUser });
     } else {
-      const newUser = await User.create({ name, email });
+      // New user - role is required
+      if (!role || !["advisor", "investor"].includes(role)) {
+        return res.status(400).json({ 
+          message: "Role selection required", 
+          requiresRole: true 
+        });
+      }
+      
+      const newUser = await User.create({ 
+        name, 
+        email, 
+        role,
+        isGoogleAuth: true 
+      });
+      
       const token = generateToken({ id: newUser._id });
       res.cookie("token", token, {
         httpOnly: true,
@@ -78,7 +97,11 @@ const googleAuth = async (req, res) => {
       });
       return res
         .status(200)
-        .json({ message: "Login successful", user: newUser });
+        .json({ 
+          message: "Signup successful", 
+          user: newUser,
+          isNewUser: true 
+        });
     }
   } catch (error) {
     return res.status(500).json({ message: "Internal server error" });

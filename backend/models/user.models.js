@@ -10,12 +10,37 @@ const userSchema = new Schema(
     isGoogleAuth: { type: Boolean, default: false },
     role:{
       type:String,
-      enum:["advisor","investor"],
+      enum:["advisor","investor","admin"],
       default:"investor"
     },
     phone:{
       type:String
-    }
+    },
+    // Advisor-specific fields
+    profilePicture: { type: String }, // Cloudinary URL
+    bio: { type: String, maxlength: 500 },
+    sebiCertificate: { type: String }, // Cloudinary URL
+    sebiRegistrationNumber: { type: String },
+    isVerified: { type: Boolean, default: false }, // Admin verification status
+    verificationStatus: { 
+      type: String, 
+      enum: ["pending", "approved", "rejected"], 
+      default: "pending" 
+    },
+    solanaWallet: { type: String }, // Solana PDA address
+    trustScore: { type: Number, default: 0, min: 0, max: 100 },
+    // SMS 2FA
+    phoneVerified: { type: Boolean, default: false },
+    twoFactorEnabled: { type: Boolean, default: false },
+    // Analytics
+    subscriberCount: { type: Number, default: 0 },
+    totalTrades: { type: Number, default: 0 },
+    winRate: { type: Number, default: 0 }, // Percentage
+    totalProfit: { type: Number, default: 0 },
+    totalLoss: { type: Number, default: 0 },
+    // Investor-specific fields
+    followedAdvisors: [{ type: Schema.Types.ObjectId, ref: "User" }],
+    paperTradingBalance: { type: Number, default: 100000 }, // Virtual balance
   },
   { timestamps: true }
 );
