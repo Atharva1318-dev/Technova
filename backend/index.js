@@ -13,7 +13,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import { initializeSocket } from "./services/socket.service.js";
 import initTrustScoreCron from "./cron/trustScore.cron.js";
-
+import AINewsRouter from "./routes/aiNews.routes.js";
 dotenv.config();
 
 const app = express();
@@ -45,6 +45,7 @@ app.use("/api/trade", TradeRouter);
 app.use("/api/investor", InvestorRouter);
 app.use("/api/admin", AdminRouter);
 app.use("/api/blockchain", BlockchainRouter);
+app.use("/api/ai-news", AINewsRouter);
 
 // Health check
 app.get("/", (req, res) => {
@@ -59,6 +60,7 @@ app.get("/", (req, res) => {
       investor: "/api/investor",
       admin: "/api/admin",
       blockchain: "/api/blockchain",
+      aiNews: "/api/ai-news",
     }
   });
 });
