@@ -9,13 +9,22 @@ import AdvisorsGrid from "../advisor/AdvisoryGrid";
 
 const AdvisorsPage = () => {
   const [advisors, setAdvisors] = useState([]);
+  const [followedAdvisors, setFollowedAdvisors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState("trustScore");
   const { serverUrl } = useContext(AuthDataContext);
+  
 
   useEffect(() => {
-    fetchAdvisors();
-  }, [sortBy]);
+  fetchAdvisors();
+  fetchCurrentUser(); // ✅ ADD
+}, [sortBy]);
+
+
+  const isAdvisorFollowed = (advisorId) => {
+  return followedAdvisors.includes(advisorId);
+};
+
 
   const fetchAdvisors = async () => {
     try {
@@ -37,18 +46,37 @@ const AdvisorsPage = () => {
     }
   };
 
+  const fetchCurrentUser = async () => {
+  try {
+    const res = await axios.get(
+      `${serverUrl}/api/user/current`,
+      { withCredentials: true }
+    );
+
+    setFollowedAdvisors(res.data.user.followedAdvisors || []);
+  } catch (error) {
+    console.error("Failed to fetch current user");
+  }
+};
+
+
   const handleFollow = async (advisorId) => {
-    try {
-      await axios.post(
-        `${serverUrl}/api/investor/follow/${advisorId}`,
-        {},
-        { withCredentials: true }
-      );
-      toast.success("Advisor followed!");
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to follow advisor");
-    }
-  };
+  try {
+    await axios.post(
+      `${serverUrl}/api/investor/follow/${advisorId}`,
+      {},
+      { withCredentials: true }
+    );
+
+    // ✅ Update local state immediately
+    setFollowedAdvisors((prev) => [...prev, advisorId]);
+
+    toast.success("Advisor followed!");
+  } catch (error) {
+    toast.error(error.response?.data?.message || "Failed to follow advisor");
+  }
+};
+
 
   if (loading) {
     return (
@@ -85,9 +113,11 @@ const AdvisorsPage = () => {
         </div>
       ) : (
         <AdvisorsGrid
-          advisors={advisors}
-          onFollow={handleFollow}
-        />
+  advisors={advisors}
+  onFollow={handleFollow}
+  isAdvisorFollowed={isAdvisorFollowed}
+/>
+
       )}
     </div>
   );

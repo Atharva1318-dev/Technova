@@ -4,7 +4,8 @@ import { Award } from "lucide-react";
 const DEFAULT_AVATAR =
     "https://api.dicebear.com/7.x/initials/svg?seed=Advisor";
 
-const AdvisorCard = ({ advisor, onFollow }) => {
+const AdvisorCard = ({ advisor, onFollow, isFollowed }) => {
+
     return (
         <CardContainer className="w-full">
             <CardBody className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm hover:shadow-xl transition-shadow">
@@ -47,11 +48,17 @@ const AdvisorCard = ({ advisor, onFollow }) => {
                 {/* Action */}
                 <CardItem translateZ={20} className="mt-5">
                     <button
-                        onClick={() => onFollow(advisor._id)}
-                        className="w-full py-2.5 bg-gradient-to-r from-[#0077b6] to-[#00b4d8] text-white font-semibold rounded-lg hover:scale-[1.03] transition-transform"
-                    >
-                        Follow Advisor
-                    </button>
+  disabled={isFollowed}
+  onClick={() => onFollow(advisor._id)}
+  className={`w-full mt-4 px-4 py-2 rounded-lg font-semibold transition ${
+    isFollowed
+      ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+      : "bg-[#0077b6] text-white hover:bg-[#005a8d]"
+  }`}
+>
+  {isFollowed ? "Followed" : "Follow"}
+</button>
+
                 </CardItem>
             </CardBody>
         </CardContainer>
