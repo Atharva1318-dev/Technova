@@ -9,6 +9,8 @@ import {
   toggleFollowAdvisor,
 } from "../controller/investor.controller.js";
 
+import { getAllAdvisors } from "../controller/advisor.controller.js";
+
 const InvestorRouter = express.Router();
 
 // Paper trading
@@ -47,5 +49,9 @@ InvestorRouter.post(
   checkRole("investor"),
   toggleFollowAdvisor
 );
+
+// routes/investor.routes.js
+InvestorRouter.get("/advisors", getAllAdvisors);
+
 
 export default InvestorRouter;

@@ -1,9 +1,9 @@
 import React from "react";
-import { 
-  LayoutDashboard, 
-  TrendingUp, 
-  Briefcase, 
-  Users, 
+import {
+  LayoutDashboard,
+  TrendingUp,
+  Briefcase,
+  Users,
   Settings,
   LogOut,
   Flame,
@@ -24,7 +24,7 @@ const Sidebar = ({ activePage, setActivePage, userData, onLogout }) => {
     { id: "hot-stocks", label: "Hot Stocks", icon: Flame },
     { id: "signals", label: "Live Signals", icon: TrendingUp },
     { id: "portfolio", label: "My Portfolio", icon: Briefcase },
-    { id: "advisors", label: "Top Advisors", icon: Users },
+    { id: "advisors", label: "Advisors", icon: Users },
     { id: "analytics", label: "Analytics", icon: BarChart3 },
     { id: "wallet", label: "Wallet", icon: Wallet },
     { id: "settings", label: "Settings", icon: Settings },
@@ -66,7 +66,7 @@ const Sidebar = ({ activePage, setActivePage, userData, onLogout }) => {
             <p className="text-xs text-gray-500 truncate">{userData?.email || ""}</p>
           </div>
         </div>
-        
+
         {/* Account Tier Badge */}
         <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-2 mb-2">
           <div className="flex items-center justify-between">
@@ -87,7 +87,7 @@ const Sidebar = ({ activePage, setActivePage, userData, onLogout }) => {
             </span>
           </div>
           <div className="w-full bg-gray-800 rounded-full h-1">
-            <div 
+            <div
               className="bg-gradient-to-r from-green-500 to-emerald-500 h-1 rounded-full"
               style={{ width: `${Math.min((userData?.portfolioValue || 0) / 100000 * 100, 100)}%` }}
             ></div>
@@ -100,27 +100,25 @@ const Sidebar = ({ activePage, setActivePage, userData, onLogout }) => {
         <div className="px-3 mb-1">
           <p className="text-xs text-gray-600 uppercase tracking-wider font-medium">Trading</p>
         </div>
-        
+
         <div className="space-y-1 px-2">
           {menuItems.map((item) => {
             const Icon = item.icon;
             const isActive = activePage === item.id;
-            
+
             return (
               <button
                 key={item.id}
                 onClick={() => setActivePage(item.id)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
-                  isActive
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${isActive
                     ? "bg-gradient-to-r from-blue-900/30 to-purple-900/30 border border-blue-900/40 text-white shadow"
                     : "text-gray-400 hover:bg-gray-900/50 hover:text-white"
-                }`}
+                  }`}
               >
-                <div className={`p-1.5 rounded ${
-                  isActive 
-                    ? "bg-gradient-to-br from-blue-500/20 to-purple-500/20" 
+                <div className={`p-1.5 rounded ${isActive
+                    ? "bg-gradient-to-br from-blue-500/20 to-purple-500/20"
                     : "bg-gray-900/50"
-                }`}>
+                  }`}>
                   <Icon className={`w-4 h-4 ${isActive ? "text-blue-400" : "text-gray-500"}`} />
                 </div>
                 <span className="font-medium text-sm">{item.label}</span>
@@ -135,12 +133,12 @@ const Sidebar = ({ activePage, setActivePage, userData, onLogout }) => {
             );
           })}
         </div>
-        
+
         {/* Quick Stats */}
         <div className="px-3 mt-4 mb-1">
           <p className="text-xs text-gray-600 uppercase tracking-wider font-medium">Performance</p>
         </div>
-        
+
         <div className="space-y-1 px-2">
           <div className="flex items-center justify-between bg-gray-900/30 border border-gray-800 rounded-lg p-2">
             <div className="flex items-center gap-2">
@@ -151,7 +149,7 @@ const Sidebar = ({ activePage, setActivePage, userData, onLogout }) => {
               ₹{(userData?.todaysPnL || 0) >= 0 ? '+' : ''}{userData?.todaysPnL?.toFixed(0) || "0"}
             </span>
           </div>
-          
+
           <div className="flex items-center justify-between bg-gray-900/30 border border-gray-800 rounded-lg p-2">
             <div className="flex items-center gap-2">
               <Target className="w-3.5 h-3.5 text-purple-400" />
@@ -159,7 +157,7 @@ const Sidebar = ({ activePage, setActivePage, userData, onLogout }) => {
             </div>
             <span className="text-xs font-bold text-white">{userData?.activeTrades || 0}</span>
           </div>
-          
+
           <div className="flex items-center justify-between bg-gray-900/30 border border-gray-800 rounded-lg p-2">
             <div className="flex items-center gap-2">
               <Activity className="w-3.5 h-3.5 text-blue-400" />
@@ -179,7 +177,7 @@ const Sidebar = ({ activePage, setActivePage, userData, onLogout }) => {
           <LogOut className="w-5 h-5 group-hover:scale-110 transition-transform" />
           <span className="text-sm">Logout</span>
         </button>
-        
+
         {/* Platform Status */}
         <div className="mt-4 pt-3 border-t border-gray-800">
           <div className="flex items-center justify-center gap-1.5">
