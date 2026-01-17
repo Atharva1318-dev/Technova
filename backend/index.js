@@ -15,7 +15,7 @@ import { initializeSocket } from "./services/socket.service.js";
 import initTrustScoreCron from "./cron/trustScore.cron.js";
 import MonitorManager from "./services/tradeMonitor.service.js";
 import AINewsRouter from "./routes/aiNews.routes.js";
-
+import IncrementRouter from "./routes/increment.routes.js";
 dotenv.config();
 
 const app = express();
@@ -48,7 +48,7 @@ app.use("/api/investor", InvestorRouter);
 app.use("/api/admin", AdminRouter);
 app.use("/api/blockchain", BlockchainRouter);
 app.use("/api/ai-news", AINewsRouter);
-
+app.use("/api/increment", IncrementRouter);
 // Health check
 app.get("/", (req, res) => {
   res.json({ 
