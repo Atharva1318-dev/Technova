@@ -87,7 +87,7 @@ const faqs = [
 export default function Home() {
   return (
     <div className="bg-neutral-950 text-white min-h-screen font-sans selection:bg-blue-500/30">
-
+      <Navbar />
       {/* 2. HERO SECTION */}
       <section className="relative w-full py-32 md:py-40 lg:py-48 overflow-hidden flex flex-col items-center text-center">
         {/* <div className="absolute inset-0 z-0">

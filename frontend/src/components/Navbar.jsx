@@ -178,11 +178,11 @@ const NavbarContent = ({ userData, onLogout }) => {
                     </>
                 ) : (
                     <div className="text-white/60 text-sm flex items-center gap-4">
-                        <span>Blockchain Verified</span>
+                        <span>Trading News</span>
                         <span className="w-1 h-1 rounded-full bg-white/20"></span>
-                        <span>AI Powered</span>
-                        <span className="w-1 h-1 rounded-full bg-white/20"></span>
-                        <span>SEBI Registered</span>
+                        <span>About Us</span>
+                        {/* <span className="w-1 h-1 rounded-full bg-white/20"></span>
+                        <span>SEBI Registered</span> */}
                     </div>
                 )}
             </div>
