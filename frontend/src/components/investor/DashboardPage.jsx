@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { AuthDataContext } from "../../context/AuthDataContext";
 import { toast } from "react-toastify";
-import { TrendingUp, TrendingDown, Award, Target, Shield, ChevronLeft, ChevronRight } from "lucide-react";
+import { TrendingUp, TrendingDown, Award, Target, Shield, ChevronLeft, ChevronRight, Users, Activity, BarChart3 } from "lucide-react";
 import { onNewSignal, onSignalClosed } from "../../utils/socket";
 
 const DashboardPage = () => {
@@ -107,27 +107,35 @@ const DashboardPage = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 bg-white">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600 mt-1">Overview of active signals and top advisors</p>
+        <h1 className="text-3xl font-bold text-gray-900">Investor Dashboard</h1>
+        <p className="text-gray-600 mt-2">Real-time signals from verified SEBI advisors</p>
       </div>
 
-      {/* Top Advisors Carousel */}
-      <div className="bg-gradient-to-r from-[#0077b6] to-[#00b4d8] rounded-2xl p-6 text-white shadow-xl">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold">🏆 Top Performing Advisors</h2>
+      {/* Top Advisors Carousel - Darker Blue/Purple Shades */}
+      <div className="bg-gradient-to-r from-[#0056b3] to-[#6d28d9] rounded-2xl p-8 text-white shadow-xl">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-white/20 border border-white/30 rounded-xl flex items-center justify-center">
+              <Award className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold">Top Performing Advisors</h2>
+              <p className="text-sm text-white/90 mt-1">Based on Trust Score & Win Rate</p>
+            </div>
+          </div>
           <div className="flex gap-2">
             <button
               onClick={prevAdvisor}
-              className="p-2 bg-white/20 hover:bg-white/30 rounded-lg transition"
+              className="p-3 bg-white/20 hover:bg-white/30 rounded-xl transition-all duration-200 hover:scale-105"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
             <button
               onClick={nextAdvisor}
-              className="p-2 bg-white/20 hover:bg-white/30 rounded-lg transition"
+              className="p-3 bg-white/20 hover:bg-white/30 rounded-xl transition-all duration-200 hover:scale-105"
             >
               <ChevronRight className="w-5 h-5" />
             </button>
@@ -135,171 +143,197 @@ const DashboardPage = () => {
         </div>
 
         {topAdvisors.length > 0 ? (
-          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-            <div className="flex items-center gap-4 mb-4">
-              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
-                <span className="text-2xl font-bold">
+          <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-8 border border-white/25 shadow-lg">
+            <div className="flex items-center gap-6 mb-8">
+              <div className="w-20 h-20 bg-gradient-to-br from-white/30 to-white/15 border-2 border-white/40 rounded-full flex items-center justify-center shadow-lg">
+                <span className="text-3xl font-bold text-white">
                   {topAdvisors[currentAdvisorIndex]?.name?.charAt(0).toUpperCase()}
                 </span>
               </div>
               <div className="flex-1">
-                <h3 className="text-xl font-bold">{topAdvisors[currentAdvisorIndex]?.name}</h3>
-                <p className="text-sm text-white/80">SEBI Registered Advisor</p>
+                <h3 className="text-2xl font-bold">{topAdvisors[currentAdvisorIndex]?.name}</h3>
+                <p className="text-sm text-white/90 flex items-center gap-2 mt-2">
+                  <Shield className="w-4 h-4" />
+                  SEBI Registered Advisor
+                </p>
               </div>
               <div className="text-right">
-                <div className="text-3xl font-bold">{topAdvisors[currentAdvisorIndex]?.trustScore || 0}</div>
-                <p className="text-xs text-white/80">Trust Score</p>
+                <div className="text-4xl font-bold text-white">{topAdvisors[currentAdvisorIndex]?.trustScore || 0}</div>
+                <p className="text-sm text-white/90">Trust Score</p>
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
-              <div className="bg-white/10 rounded-lg p-3">
-                <p className="text-xs text-white/70 mb-1">Win Rate</p>
-                <p className="text-lg font-bold">{topAdvisors[currentAdvisorIndex]?.winRate?.toFixed(1) || 0}%</p>
+            <div className="grid grid-cols-3 gap-6">
+              <div className="bg-white/15 border border-white/25 rounded-xl p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <BarChart3 className="w-4 h-4 text-emerald-300" />
+                  <p className="text-sm text-white/90">Win Rate</p>
+                </div>
+                <p className="text-2xl font-bold text-white">{topAdvisors[currentAdvisorIndex]?.winRate?.toFixed(1) || 0}%</p>
               </div>
-              <div className="bg-white/10 rounded-lg p-3">
-                <p className="text-xs text-white/70 mb-1">Total Trades</p>
-                <p className="text-lg font-bold">{topAdvisors[currentAdvisorIndex]?.totalTrades || 0}</p>
+              <div className="bg-white/15 border border-white/25 rounded-xl p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Activity className="w-4 h-4 text-sky-300" />
+                  <p className="text-sm text-white/90">Total Trades</p>
+                </div>
+                <p className="text-2xl font-bold text-white">{topAdvisors[currentAdvisorIndex]?.totalTrades || 0}</p>
               </div>
-              <div className="bg-white/10 rounded-lg p-3">
-                <p className="text-xs text-white/70 mb-1">Subscribers</p>
-                <p className="text-lg font-bold">{topAdvisors[currentAdvisorIndex]?.subscriberCount || 0}</p>
+              <div className="bg-white/15 border border-white/25 rounded-xl p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Users className="w-4 h-4 text-violet-300" />
+                  <p className="text-sm text-white/90">Subscribers</p>
+                </div>
+                <p className="text-2xl font-bold text-white">{topAdvisors[currentAdvisorIndex]?.subscriberCount || 0}</p>
               </div>
             </div>
 
-            <div className="flex gap-2 justify-center mt-4">
+            <div className="flex gap-2 justify-center mt-8">
               {topAdvisors.map((_, index) => (
                 <div
                   key={index}
-                  className={`h-1.5 rounded-full transition-all duration-300 ${
-                    index === currentAdvisorIndex ? "w-8 bg-white" : "w-1.5 bg-white/40"
+                  className={`h-2 rounded-full transition-all duration-300 ${
+                    index === currentAdvisorIndex ? "w-12 bg-white shadow-lg" : "w-2 bg-white/50"
                   }`}
                 />
               ))}
             </div>
           </div>
         ) : (
-          <div className="text-center py-8 text-white/70">
-            No advisors available yet
+          <div className="text-center py-12 text-white/90 bg-white/15 rounded-2xl border border-white/25">
+            <div className="w-16 h-16 bg-white/25 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Users className="w-8 h-8 text-white/90" />
+            </div>
+            <p className="text-lg font-medium">No advisors available yet</p>
+            <p className="text-sm mt-2">Advisors will appear after verification</p>
           </div>
         )}
       </div>
 
       {/* Active & Pending Signals */}
       <div>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-gray-900">Live Trading Signals</h2>
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-[#0056b3] to-[#6d28d9] rounded-xl flex items-center justify-center shadow-md">
+              <TrendingUp className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">Live Trading Signals</h2>
+              <p className="text-gray-700 text-sm mt-1">Real-time signals from trusted advisors</p>
+            </div>
+          </div>
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            <span className="text-sm text-gray-600">Live</span>
+            <div className="w-3 h-3 bg-emerald-500 rounded-full animate-pulse shadow-md shadow-emerald-500/50"></div>
+            <span className="text-sm font-medium text-gray-700">Live Updates</span>
           </div>
         </div>
 
         {signals.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-gray-200 p-12 text-center">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <TrendingUp className="w-8 h-8 text-gray-400" />
+          <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl border border-gray-300 p-12 text-center shadow-sm">
+            <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-violet-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+              <TrendingUp className="w-10 h-10 text-[#0056b3]" />
             </div>
-            <p className="text-gray-600 font-medium mb-2">No active signals</p>
-            <p className="text-sm text-gray-500">
-              New signals from advisors will appear here in real-time
+            <p className="text-gray-800 font-semibold text-lg mb-2">No active signals</p>
+            <p className="text-gray-700 max-w-md mx-auto">
+              New signals from SEBI-registered advisors will appear here in real-time
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {signals.map((signal) => (
               <div
                 key={signal._id}
-                className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-all duration-200 hover:border-[#0077b6]"
+                className="bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-300 p-6 hover:shadow-xl transition-all duration-300 hover:border-blue-300 hover:shadow-blue-100"
               >
                 {/* Advisor Info */}
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-[#0077b6] to-[#00b4d8] rounded-full flex items-center justify-center">
-                      <span className="text-white font-bold text-sm">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-[#0056b3] to-[#6d28d9] rounded-xl flex items-center justify-center shadow-lg">
+                      <span className="text-white font-bold text-lg">
                         {signal.advisorId?.name?.charAt(0).toUpperCase()}
                       </span>
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-900 text-sm">
+                      <p className="font-bold text-gray-900">
                         {signal.advisorId?.name || "Advisor"}
                       </p>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <Award className="w-3 h-3 text-yellow-500" />
-                        <span className="text-xs text-gray-600">
-                          {signal.advisorId?.trustScore || 0}/100
-                        </span>
-                        <span className="text-xs text-gray-400">•</span>
-                        <span className="text-xs text-gray-600">
-                          {signal.advisorId?.winRate?.toFixed(1) || 0}% Win
+                      <div className="flex items-center gap-3 mt-2">
+                        <div className="flex items-center gap-1">
+                          <Award className="w-4 h-4 text-amber-500" />
+                          <span className="text-sm font-medium text-gray-800">
+                            {signal.advisorId?.trustScore || 0}
+                          </span>
+                        </div>
+                        <div className="w-px h-4 bg-gray-400"></div>
+                        <span className="text-sm font-medium text-gray-800">
+                          {signal.advisorId?.winRate?.toFixed(1) || 0}% Win Rate
                         </span>
                       </div>
                     </div>
                   </div>
 
                   <span
-                    className={`px-2 py-1 rounded-full text-xs font-bold ${
+                    className={`px-3 py-1.5 rounded-full text-xs font-bold ${
                       signal.riskLevel === "low"
-                        ? "bg-green-100 text-green-700"
+                        ? "bg-emerald-100 text-emerald-800 border border-emerald-300"
                         : signal.riskLevel === "medium"
-                        ? "bg-yellow-100 text-yellow-700"
-                        : "bg-red-100 text-red-700"
+                        ? "bg-amber-100 text-amber-800 border border-amber-300"
+                        : "bg-rose-100 text-rose-800 border border-rose-300"
                     }`}
                   >
-                    {signal.riskLevel?.toUpperCase()}
+                    {signal.riskLevel?.toUpperCase()} RISK
                   </span>
                 </div>
 
                 {/* Signal Details */}
-                <div className="space-y-3 mb-4">
+                <div className="space-y-4 mb-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-xs text-gray-500 mb-1">Symbol</p>
-                      <p className="font-bold text-gray-900">{signal.symbol}</p>
-                      <p className="text-xs text-gray-500 capitalize">{signal.assetClass}</p>
+                      <p className="text-xs text-gray-700 mb-1">Symbol</p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-2xl font-bold text-gray-900">{signal.symbol}</p>
+                        <p className="text-sm text-gray-700 capitalize px-3 py-1 bg-gray-200 rounded-full">
+                          {signal.assetClass}
+                        </p>
+                      </div>
                     </div>
                     <div
-                      className={`px-4 py-2 rounded-lg ${
+                      className={`px-5 py-3 rounded-xl ${
                         signal.direction === "buy"
-                          ? "bg-green-50 border border-green-200"
-                          : "bg-red-50 border border-red-200"
+                          ? "bg-gradient-to-r from-emerald-600 to-emerald-700 shadow-lg shadow-emerald-500/30"
+                          : "bg-gradient-to-r from-rose-600 to-rose-700 shadow-lg shadow-rose-500/30"
                       }`}
                     >
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-3">
                         {signal.direction === "buy" ? (
-                          <TrendingUp className="w-5 h-5 text-green-600" />
+                          <TrendingUp className="w-6 h-6 text-white" />
                         ) : (
-                          <TrendingDown className="w-5 h-5 text-red-600" />
+                          <TrendingDown className="w-6 h-6 text-white" />
                         )}
-                        <span
-                          className={`font-bold text-sm ${
-                            signal.direction === "buy" ? "text-green-700" : "text-red-700"
-                          }`}
-                        >
+                        <span className="font-bold text-lg text-white">
                           {signal.direction.toUpperCase()}
                         </span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-3">
-                    <div className="bg-gray-50 rounded-lg p-3">
-                      <p className="text-xs text-gray-500 mb-1">Entry</p>
-                      <p className="font-bold text-gray-900">₹{signal.entryPrice.toFixed(2)}</p>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="bg-gradient-to-br from-blue-50 to-white border border-blue-200 rounded-xl p-4">
+                      <p className="text-xs text-blue-800 mb-2 font-medium">Entry Price</p>
+                      <p className="text-xl font-bold text-gray-900">₹{signal.entryPrice.toFixed(2)}</p>
                     </div>
-                    <div className="bg-red-50 rounded-lg p-3">
-                      <p className="text-xs text-red-600 mb-1 flex items-center gap-1">
-                        <Shield className="w-3 h-3" />
+                    <div className="bg-gradient-to-br from-rose-50 to-white border border-rose-200 rounded-xl p-4">
+                      <p className="text-xs text-rose-800 mb-2 font-medium flex items-center gap-1">
+                        <Shield className="w-4 h-4" />
                         Stop Loss
                       </p>
-                      <p className="font-bold text-red-700">₹{signal.stopLoss.toFixed(2)}</p>
+                      <p className="text-xl font-bold text-rose-700">₹{signal.stopLoss.toFixed(2)}</p>
                     </div>
-                    <div className="bg-green-50 rounded-lg p-3">
-                      <p className="text-xs text-green-600 mb-1 flex items-center gap-1">
-                        <Target className="w-3 h-3" />
+                    <div className="bg-gradient-to-br from-emerald-50 to-white border border-emerald-200 rounded-xl p-4">
+                      <p className="text-xs text-emerald-800 mb-2 font-medium flex items-center gap-1">
+                        <Target className="w-4 h-4" />
                         Target
                       </p>
-                      <p className="font-bold text-green-700">₹{signal.target.toFixed(2)}</p>
+                      <p className="text-xl font-bold text-emerald-700">₹{signal.target.toFixed(2)}</p>
                     </div>
                   </div>
                 </div>
@@ -307,17 +341,20 @@ const DashboardPage = () => {
                 {/* Action Button */}
                 <button
                   onClick={() => handleFollow(signal.tradeId)}
-                  className="w-full py-3 bg-gradient-to-r from-[#0077b6] to-[#00b4d8] text-white font-semibold rounded-lg hover:shadow-lg transition-all duration-200 transform hover:scale-105"
+                  className="w-full py-3.5 bg-gradient-to-r from-[#0056b3] to-[#6d28d9] text-white font-bold rounded-xl hover:shadow-lg hover:shadow-[#0056b3]/30 transition-all duration-200 transform hover:-translate-y-0.5"
                 >
                   Follow Signal
                 </button>
 
                 {/* Footer */}
-                <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-                  <span className="text-xs text-gray-500">
-                    {signal.followers || 0} investors following
-                  </span>
-                  <span className="text-xs text-gray-400">
+                <div className="flex items-center justify-between mt-6 pt-6 border-t border-gray-300">
+                  <div className="flex items-center gap-2">
+                    <Users className="w-4 h-4 text-gray-600" />
+                    <span className="text-sm text-gray-700">
+                      {signal.followers || 0} investors following
+                    </span>
+                  </div>
+                  <span className="text-sm font-medium text-gray-800">
                     {new Date(signal.createdAt).toLocaleTimeString()}
                   </span>
                 </div>

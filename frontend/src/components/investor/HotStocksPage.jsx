@@ -140,16 +140,16 @@ const HotStocksPage = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bg-white">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Hot Stocks</h1>
-          <p className="text-gray-600 mt-1">Real-time market data and charts</p>
+          <p className="text-gray-700 mt-1">Real-time market data and charts</p>
         </div>
         <button
           onClick={fetchStockData}
-          className="flex items-center gap-2 px-4 py-2 bg-[#0077b6] text-white rounded-lg hover:bg-[#005a8d] transition"
+          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#0056b3] to-[#6d28d9] text-white rounded-lg hover:from-[#004996] hover:to-[#5b21b6] transition font-semibold shadow-md"
         >
           <RefreshCw className="w-4 h-4" />
           Refresh
@@ -157,7 +157,7 @@ const HotStocksPage = () => {
       </div>
 
       {/* Stock Selector */}
-      <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+      <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-300 p-6 shadow-sm">
         <div className="flex flex-wrap gap-2 mb-4">
           {popularStocks.map((stock) => (
             <button
@@ -165,8 +165,8 @@ const HotStocksPage = () => {
               onClick={() => handleStockChange(stock.symbol)}
               className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
                 selectedStock === stock.symbol
-                  ? "bg-[#0077b6] text-white shadow-md"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  ? "bg-gradient-to-r from-[#0056b3] to-[#6d28d9] text-white shadow-lg"
+                  : "bg-gray-100 text-gray-800 hover:bg-gray-200 border border-gray-300"
               }`}
             >
               {stock.symbol}
@@ -177,19 +177,19 @@ const HotStocksPage = () => {
         {/* Custom Search */}
         <div className="flex gap-2">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+            <Search className="absolute left-3 top-3 w-5 h-5 text-gray-600" />
             <input
               type="text"
               placeholder="Search custom stock symbol..."
               value={customSymbol}
               onChange={(e) => setCustomSymbol(e.target.value)}
               onKeyPress={(e) => e.key === "Enter" && handleCustomSearch()}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-[#0077b6]"
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-400 rounded-lg focus:outline-none focus:border-[#0056b3] focus:ring-2 focus:ring-blue-100"
             />
           </div>
           <button
             onClick={handleCustomSearch}
-            className="px-6 py-2.5 bg-[#0077b6] text-white rounded-lg hover:bg-[#005a8d] transition font-medium"
+            className="px-6 py-2.5 bg-gradient-to-r from-[#0056b3] to-[#6d28d9] text-white rounded-lg hover:from-[#004996] hover:to-[#5b21b6] transition font-semibold shadow-md"
           >
             Search
           </button>
@@ -198,18 +198,18 @@ const HotStocksPage = () => {
 
       {/* Stock Info Card */}
       {stockInfo && (
-        <div className="bg-gradient-to-r from-[#0077b6] to-[#00b4d8] rounded-2xl p-6 text-white shadow-xl">
+        <div className="bg-gradient-to-r from-[#0056b3] to-[#6d28d9] rounded-2xl p-6 text-white shadow-xl shadow-blue-900/20">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h2 className="text-2xl font-bold">{selectedStock}</h2>
-              <p className="text-sm text-white/80">
+              <p className="text-sm text-white/90">
                 {popularStocks.find(s => s.symbol === selectedStock)?.name || "Stock"}
               </p>
             </div>
             <div className="text-right">
               <p className="text-3xl font-bold">₹{stockInfo.currentPrice.toFixed(2)}</p>
               <div className={`flex items-center gap-1 justify-end mt-1 ${
-                stockInfo.change >= 0 ? "text-green-300" : "text-red-300"
+                stockInfo.change >= 0 ? "text-emerald-300" : "text-rose-300"
               }`}>
                 {stockInfo.change >= 0 ? (
                   <TrendingUp className="w-4 h-4" />
@@ -225,16 +225,16 @@ const HotStocksPage = () => {
           </div>
 
           <div className="grid grid-cols-3 gap-4">
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3">
-              <p className="text-xs text-white/70 mb-1">High</p>
+            <div className="bg-white/15 backdrop-blur-sm rounded-lg p-3 border border-white/25">
+              <p className="text-xs text-white/90 mb-1">High</p>
               <p className="font-bold">₹{stockInfo.high.toFixed(2)}</p>
             </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3">
-              <p className="text-xs text-white/70 mb-1">Low</p>
+            <div className="bg-white/15 backdrop-blur-sm rounded-lg p-3 border border-white/25">
+              <p className="text-xs text-white/90 mb-1">Low</p>
               <p className="font-bold">₹{stockInfo.low.toFixed(2)}</p>
             </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3">
-              <p className="text-xs text-white/70 mb-1">Volume</p>
+            <div className="bg-white/15 backdrop-blur-sm rounded-lg p-3 border border-white/25">
+              <p className="text-xs text-white/90 mb-1">Volume</p>
               <p className="font-bold">{(stockInfo.volume / 1000).toFixed(1)}K</p>
             </div>
           </div>
@@ -247,8 +247,8 @@ const HotStocksPage = () => {
           onClick={() => setTimeframe("1")}
           className={`px-6 py-2.5 rounded-lg font-semibold transition-all duration-200 ${
             timeframe === "1"
-              ? "bg-[#0077b6] text-white shadow-md"
-              : "bg-white border border-gray-300 text-gray-700 hover:border-[#0077b6]"
+              ? "bg-gradient-to-r from-[#0056b3] to-[#6d28d9] text-white shadow-lg"
+              : "bg-white border border-gray-400 text-gray-800 hover:border-[#0056b3] hover:text-[#0056b3]"
           }`}
         >
           1 Minute
@@ -257,8 +257,8 @@ const HotStocksPage = () => {
           onClick={() => setTimeframe("15")}
           className={`px-6 py-2.5 rounded-lg font-semibold transition-all duration-200 ${
             timeframe === "15"
-              ? "bg-[#0077b6] text-white shadow-md"
-              : "bg-white border border-gray-300 text-gray-700 hover:border-[#0077b6]"
+              ? "bg-gradient-to-r from-[#0056b3] to-[#6d28d9] text-white shadow-lg"
+              : "bg-white border border-gray-400 text-gray-800 hover:border-[#0056b3] hover:text-[#0056b3]"
           }`}
         >
           15 Minutes
@@ -266,51 +266,51 @@ const HotStocksPage = () => {
       </div>
 
       {/* Chart */}
-      <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+      <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-300 p-6 shadow-sm">
         <h3 className="text-lg font-bold text-gray-900 mb-4">
           Price Chart - {timeframe} Minute Interval
         </h3>
         
         {loading ? (
           <div className="flex items-center justify-center h-96">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0077b6]"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0056b3]"></div>
           </div>
         ) : chartData.length > 0 ? (
           <ResponsiveContainer width="100%" height={400}>
             <LineChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
               <XAxis 
                 dataKey="time" 
-                stroke="#666"
+                stroke="#4b5563"
                 style={{ fontSize: '12px' }}
                 interval="preserveStartEnd"
               />
               <YAxis 
-                stroke="#666"
+                stroke="#4b5563"
                 style={{ fontSize: '12px' }}
                 domain={['auto', 'auto']}
               />
               <Tooltip
                 contentStyle={{
                   backgroundColor: '#fff',
-                  border: '1px solid #e5e7eb',
+                  border: '1px solid #d1d5db',
                   borderRadius: '8px',
                   boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
                 }}
-                labelStyle={{ color: '#374151', fontWeight: 'bold' }}
+                labelStyle={{ color: '#1f2937', fontWeight: 'bold' }}
               />
               <Line
                 type="monotone"
                 dataKey="close"
-                stroke="#0077b6"
+                stroke="#0056b3"
                 strokeWidth={2}
                 dot={false}
-                activeDot={{ r: 6, fill: '#0077b6' }}
+                activeDot={{ r: 6, fill: '#0056b3' }}
               />
             </LineChart>
           </ResponsiveContainer>
         ) : (
-          <div className="flex items-center justify-center h-96 text-gray-500">
+          <div className="flex items-center justify-center h-96 text-gray-600">
             No data available
           </div>
         )}
@@ -318,13 +318,13 @@ const HotStocksPage = () => {
 
       {/* Additional Stock Info */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="bg-gradient-to-br from-white to-blue-50 rounded-xl border border-blue-200 p-6 shadow-sm">
           <div className="flex items-center gap-3 mb-3">
-            <div className="p-3 bg-blue-100 rounded-lg">
-              <TrendingUp className="w-6 h-6 text-blue-600" />
+            <div className="p-3 bg-gradient-to-br from-blue-100 to-blue-50 rounded-lg border border-blue-200">
+              <TrendingUp className="w-6 h-6 text-blue-700" />
             </div>
             <div>
-              <p className="text-xs text-gray-500">Today's High</p>
+              <p className="text-xs text-blue-800 font-medium">Today's High</p>
               <p className="text-xl font-bold text-gray-900">
                 ₹{stockInfo?.high.toFixed(2) || "-"}
               </p>
@@ -332,13 +332,13 @@ const HotStocksPage = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="bg-gradient-to-br from-white to-rose-50 rounded-xl border border-rose-200 p-6 shadow-sm">
           <div className="flex items-center gap-3 mb-3">
-            <div className="p-3 bg-red-100 rounded-lg">
-              <TrendingDown className="w-6 h-6 text-red-600" />
+            <div className="p-3 bg-gradient-to-br from-rose-100 to-rose-50 rounded-lg border border-rose-200">
+              <TrendingDown className="w-6 h-6 text-rose-700" />
             </div>
             <div>
-              <p className="text-xs text-gray-500">Today's Low</p>
+              <p className="text-xs text-rose-800 font-medium">Today's Low</p>
               <p className="text-xl font-bold text-gray-900">
                 ₹{stockInfo?.low.toFixed(2) || "-"}
               </p>
@@ -346,13 +346,13 @@ const HotStocksPage = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="bg-gradient-to-br from-white to-violet-50 rounded-xl border border-violet-200 p-6 shadow-sm">
           <div className="flex items-center gap-3 mb-3">
-            <div className="p-3 bg-purple-100 rounded-lg">
-              <TrendingUp className="w-6 h-6 text-purple-600" />
+            <div className="p-3 bg-gradient-to-br from-violet-100 to-violet-50 rounded-lg border border-violet-200">
+              <TrendingUp className="w-6 h-6 text-violet-700" />
             </div>
             <div>
-              <p className="text-xs text-gray-500">Volume</p>
+              <p className="text-xs text-violet-800 font-medium">Volume</p>
               <p className="text-xl font-bold text-gray-900">
                 {stockInfo ? (stockInfo.volume / 1000).toFixed(1) + "K" : "-"}
               </p>
@@ -362,19 +362,19 @@ const HotStocksPage = () => {
       </div>
 
       {/* Market Insights */}
-      <div className="bg-white rounded-2xl border border-gray-200 p-6">
+      <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-300 p-6 shadow-sm">
         <h3 className="text-lg font-bold text-gray-900 mb-4">Market Insights</h3>
         <div className="space-y-3">
-          <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-            <span className="text-sm text-gray-700">Trend</span>
+          <div className="flex items-center justify-between p-3 bg-gray-100 rounded-lg border border-gray-300">
+            <span className="text-sm font-medium text-gray-800">Trend</span>
             <span className={`font-semibold ${
-              stockInfo?.change >= 0 ? "text-green-600" : "text-red-600"
+              stockInfo?.change >= 0 ? "text-emerald-700" : "text-rose-700"
             }`}>
               {stockInfo?.change >= 0 ? "Bullish 📈" : "Bearish 📉"}
             </span>
           </div>
-          <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-            <span className="text-sm text-gray-700">Volatility</span>
+          <div className="flex items-center justify-between p-3 bg-gray-100 rounded-lg border border-gray-300">
+            <span className="text-sm font-medium text-gray-800">Volatility</span>
             <span className="font-semibold text-gray-900">
               {stockInfo ? (
                 Math.abs(stockInfo.changePercent) > 2 ? "High" : 
@@ -382,8 +382,8 @@ const HotStocksPage = () => {
               ) : "-"}
             </span>
           </div>
-          <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-            <span className="text-sm text-gray-700">Data Points</span>
+          <div className="flex items-center justify-between p-3 bg-gray-100 rounded-lg border border-gray-300">
+            <span className="text-sm font-medium text-gray-800">Data Points</span>
             <span className="font-semibold text-gray-900">{chartData.length}</span>
           </div>
         </div>
