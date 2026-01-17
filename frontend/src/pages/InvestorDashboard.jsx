@@ -1,6 +1,11 @@
-import React, { useState, useEffect } from "react";
+
+import React, { useState, useEffect, useContext, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { setUserData } from "../redux/userSlice";
+import { AuthDataContext } from "../context/AuthDataContext";
 import Sidebar from "../components/investor/Sidebar";
 import DashboardPage from "../components/investor/DashboardPage";
 import HotStocksPage from "../components/investor/HotStocksPage";
@@ -14,40 +19,97 @@ import { initializeSocket, joinInvestorRoom, joinSignalsFeed } from "../utils/so
 
 const InvestorDashboard = () => {
   const [activePage, setActivePage] = useState("dashboard");
+  const [initializing, setInitializing] = useState(true);
   const userData = useSelector((state) => state.user.userData);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { serverUrl } = useContext(AuthDataContext);
+  const hasCheckedAuth = useRef(false);
 
+  // Initial auth check - runs once
   useEffect(() => {
-    // Check if user is investor
+    if (hasCheckedAuth.current) return;
+    hasCheckedAuth.current = true;
+
+    const checkAuth = async () => {
+      // Wait for UserDataContext to fetch user
+      await new Promise(resolve => setTimeout(resolve, 300));
+      setInitializing(false);
+    };
+
+    checkAuth();
+  }, []);
+
+  // Handle auth and socket initialization
+  useEffect(() => {
+    if (initializing) return;
+
+    // Check if user exists
     if (!userData) {
-      navigate("/login");
+      navigate("/login", { replace: true });
       return;
     }
 
+    // Check if user is investor
     if (userData.role !== "investor") {
-      navigate("/login");
+      toast.error("Only investors can access this dashboard");
+      navigate("/", { replace: true });
       return;
     }
 
     // Initialize Socket.io
-    const socket = initializeSocket();
-    joinInvestorRoom(userData._id);
-    joinSignalsFeed();
+    try {
+      const socket = initializeSocket();
+      if (userData._id) {
+        joinInvestorRoom(userData._id);
+        joinSignalsFeed();
+      }
+    } catch (e) {
+      console.warn("Socket initialization warning:", e.message);
+    }
 
     return () => {
       // Cleanup if needed
     };
-  }, [userData, navigate]);
+  }, [userData, initializing, navigate]);
 
-  if (!userData) {
+  // Logout handler - passed to Sidebar
+  const handleLogout = async () => {
+    try {
+      // Clear Redux FIRST
+      dispatch(setUserData(null));
+      
+      // Then call logout API
+      await axios.post(
+        `${serverUrl}/api/auth/logout`,
+        {},
+        { withCredentials: true }
+      );
+      
+      toast.success("Logged out successfully");
+      navigate("/", { replace: true });
+    } catch (error) {
+      console.error("Logout error:", error);
+      // Redux already cleared, just navigate
+      navigate("/", { replace: true });
+    }
+  };
+
+  // Show loading while initializing
+  if (initializing) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0077b6] mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
+          <p className="text-gray-600">Checking authentication...</p>
         </div>
       </div>
     );
+  }
+
+  // No user after initializing
+  if (!userData) {
+    return null; // Will redirect in useEffect
   }
 
   const renderPage = () => {
@@ -75,11 +137,12 @@ const InvestorDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Sidebar */}
+      {/* Sidebar - pass logout handler */}
       <Sidebar 
         activePage={activePage} 
         setActivePage={setActivePage}
         userData={userData}
+        onLogout={handleLogout}
       />
 
       {/* Main Content */}

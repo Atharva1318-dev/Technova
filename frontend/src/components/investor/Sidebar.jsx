@@ -1,3 +1,4 @@
+
 import React from "react";
 import { 
   LayoutDashboard, 
@@ -10,15 +11,8 @@ import {
   BarChart3,
   Wallet
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import { AuthDataContext } from "../../context/AuthDataContext";
-import { useContext } from "react";
 
-const Sidebar = ({ activePage, setActivePage, userData }) => {
-  const navigate = useNavigate();
-  const { serverUrl } = useContext(AuthDataContext);
-
+const Sidebar = ({ activePage, setActivePage, userData, onLogout }) => {
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     { id: "hot-stocks", label: "Hot Stocks", icon: Flame },
@@ -30,12 +24,10 @@ const Sidebar = ({ activePage, setActivePage, userData }) => {
     { id: "settings", label: "Settings", icon: Settings },
   ];
 
-  const handleLogout = async () => {
-    try {
-      await axios.post(`${serverUrl}/api/auth/logout`, {}, { withCredentials: true });
-      navigate("/login");
-    } catch (error) {
-      console.error("Logout error:", error);
+  const handleLogout = () => {
+    // Call the logout handler passed from parent
+    if (onLogout) {
+      onLogout();
     }
   };
 
@@ -52,12 +44,12 @@ const Sidebar = ({ activePage, setActivePage, userData }) => {
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
             <span className="text-lg font-bold">
-              {userData?.name?.charAt(0).toUpperCase()}
+              {userData?.name?.charAt(0).toUpperCase() || "U"}
             </span>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-sm truncate">{userData?.name}</p>
-            <p className="text-xs text-white/70 truncate">{userData?.email}</p>
+            <p className="font-semibold text-sm truncate">{userData?.name || "User"}</p>
+            <p className="text-xs text-white/70 truncate">{userData?.email || ""}</p>
           </div>
         </div>
       </div>
@@ -89,7 +81,7 @@ const Sidebar = ({ activePage, setActivePage, userData }) => {
       <div className="p-4 border-t border-white/10">
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-4 py-3 bg-white/10 hover:bg-white/20 rounded-lg transition-all duration-200"
+          className="w-full flex items-center gap-3 px-4 py-3 bg-red-500/20 hover:bg-red-500/40 rounded-lg transition-all duration-200 text-red-100 hover:text-white"
         >
           <LogOut className="w-5 h-5" />
           <span className="font-medium text-sm">Logout</span>
