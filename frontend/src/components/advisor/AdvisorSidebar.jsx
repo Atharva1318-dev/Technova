@@ -16,6 +16,8 @@ import {
   Link2
 } from "lucide-react";
 
+import { Link } from "react-router-dom";
+
 const AdvisorSidebar = ({ activePage, setActivePage, userData, onLogout }) => {
   const menuItems = [
     // { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -36,19 +38,21 @@ const AdvisorSidebar = ({ activePage, setActivePage, userData, onLogout }) => {
     <div className="w-64 bg-[#0A0A0F] border-r border-gray-900 text-white h-screen fixed left-0 top-0 flex flex-col z-50">
       {/* Logo/Brand */}
       <div className="p-5 border-b border-gray-900 flex-shrink-0">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-gradient-to-br from-blue-900/30 to-purple-900/30 border border-gray-800 rounded-lg flex items-center justify-center">
-            <img
-              src="/securities.png"
-              alt="VeriFi Logo"
-              className="h-10 w-10 object-contain"
-            />
+        <Link href="/">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 bg-gradient-to-br from-blue-900/30 to-purple-900/30 border border-gray-800 rounded-lg flex items-center justify-center">
+              <img
+                src="/securities.png"
+                alt="VeriFi Logo"
+                className="h-10 w-10 object-contain"
+              />
+            </div>
+            <div>
+              <h1 className="text-lg font-bold">VeriFi</h1>
+              <p className="text-xs text-gray-500">Advisor Portal</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-lg font-bold">VeriFi</h1>
-            <p className="text-xs text-gray-500">Advisor Portal</p>
-          </div>
-        </div>
+        </Link>
         <div className="flex items-center gap-2 mt-3 text-xs text-gray-500">
           <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
           <span>Live</span>

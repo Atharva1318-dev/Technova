@@ -20,7 +20,7 @@ const BlockchainDashboard = ({ advisorId }) => {
       console.log("No advisor ID available yet");
       return;
     }
-    
+
     setLoading(true);
     try {
       // Fetch escrow status
@@ -141,9 +141,8 @@ const BlockchainDashboard = ({ advisorId }) => {
             <div>
               <p className="text-sm text-gray-600">Net P&L</p>
               <p
-                className={`text-2xl font-bold ${
-                  stats.netProfitLoss >= 0 ? "text-green-600" : "text-red-600"
-                }`}
+                className={`text-2xl font-bold ${stats.netProfitLoss >= 0 ? "text-green-600" : "text-red-600"
+                  }`}
               >
                 ₹{stats.netProfitLoss}
               </p>
@@ -193,11 +192,10 @@ const BlockchainDashboard = ({ advisorId }) => {
                   </div>
                   <div className="text-right">
                     <p
-                      className={`font-semibold ${
-                        trade.profitLoss >= 0
-                          ? "text-green-600"
-                          : "text-red-600"
-                      }`}
+                      className={`font-semibold ${trade.profitLoss >= 0
+                        ? "text-green-600"
+                        : "text-red-600"
+                        }`}
                     >
                       {trade.profitLoss >= 0 ? "+" : ""}₹{trade.profitLoss}
                     </p>

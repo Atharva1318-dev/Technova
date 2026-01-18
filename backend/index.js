@@ -34,7 +34,7 @@ ConnectDB();
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
-  origin: ["*", "http://localhost:5173","http://localhost:5174"],
+  origin: ["*", "http://localhost:5173", "http://localhost:5174"],
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }));
@@ -51,7 +51,7 @@ app.use("/api/ai-news", AINewsRouter);
 app.use("/api/increment", IncrementRouter);
 // Health check
 app.get("/", (req, res) => {
-  res.json({ 
+  res.json({
     message: "Technova API is running",
     version: "1.0.0",
     endpoints: {
@@ -72,15 +72,15 @@ initTrustScoreCron();
 
 // Start server
 server.listen(PORT, async () => {
-  console.log(`🚀 Server is running on port ${PORT}`);
-  console.log(`📡 Socket.io is ready for real-time connections`);
-  console.log(`⏰ Trust score cron job is scheduled`);
-  
+  console.log(`Server is running on port ${PORT}`);
+  console.log(`Socket.io is ready for real-time connections`);
+  // console.log(`Trust score cron job is scheduled`);
+
   // Restart monitors for all active and pending trades
   try {
     const monitorCount = await MonitorManager.restartAllMonitors();
-    console.log(`🔄 Restarted ${monitorCount} trade monitors`);
+    console.log(`Restarted ${monitorCount} trade monitors`);
   } catch (error) {
-    console.error("⚠️  Failed to restart monitors:", error.message);
+    console.error("Failed to restart monitors:", error.message);
   }
 });
