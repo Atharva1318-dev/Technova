@@ -45,25 +45,34 @@ const mockPrices = {
 export const getLivePrice = async (symbol) => {
   try {
     // Fallback mock logic (useful for local/dev)
-    if (!UPSTOX_ACCESS_TOKEN) {
-      console.log(`[MOCK] Fetching price for ${symbol}`);
-      const basePrice = mockPrices[symbol.split("|")[0]] || 100;
-      return basePrice + (Math.random() - 0.5) * 10;
-    }
+    // if (!UPSTOX_ACCESS_TOKEN) {
+    //   console.log(`[MOCK] Fetching price for ${symbol}`);
+    //   const basePrice = mockPrices[symbol.split("|")[0]] || 100;
+    //   return basePrice + (Math.random() - 0.5) * 10;
+    // }
 
     // Get today's date in YYYY-MM-DD
     const today = new Date().toISOString().split("T")[0];
+    const twoDaysBefore = new Date(
+      new Date().setDate(new Date().getDate() - 2)
+    )
+      .toISOString()
+      .split("T")[0];
+    console.log("today inside getLivePrice", today);
+    console.log('symbol inside getLivePrice', symbol);
 
-    const url = `${UPSTOX_BASE_URL}/historical-candle/${encodeURIComponent(
+    const url = `${UPSTOX_BASE_URL}/historical-candle/NSE_EQ%7C${encodeURIComponent(
       symbol
-    )}/minutes/1/${today}/${today}`;
+    )}/minutes/1/${today}/${twoDaysBefore}`;
+    console.log("url inside getLivePrice", url);
 
     const response = await axios.get(url, {
       headers: {
-        Authorization: `Bearer ${UPSTOX_ACCESS_TOKEN}`,
         Accept: "application/json",
       },
     });
+
+    console.log("response inside getLivePrice", response.data.data);
 
     const candles = response.data?.data?.candles;
 

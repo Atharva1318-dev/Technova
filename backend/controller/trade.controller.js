@@ -18,10 +18,12 @@ export const createSignal = async (req, res) => {
       quantity,
       limitPrice,
       stopPrice,
+      entryPrice,
       stopLoss,
       target,
       notes,
     } = req.body;
+    console.log("req.body inside createSignal", req.body);
 
     // Validate required fields
     if (!symbol || !orderType || !direction || !quantity || !stopLoss || !target) {
@@ -35,21 +37,22 @@ export const createSignal = async (req, res) => {
     const assetClass = parsedSymbol.type;
 
     // Get live price for market orders
-    let entryPrice;
-    if (orderType === "market") {
+    // let entryPrice;
+    if (orderType === "marketds") {
       entryPrice = await getLivePrice(symbol);
+      // console.log("entryPrice inside createSignal", entryPrice);
     } else if (orderType === "limit") {
       if (!limitPrice) {
         return res.status(400).json({ message: "Limit price is required for limit orders" });
       }
-      entryPrice = limitPrice;
+      // entryPrice = limitPrice;
     } else if (orderType === "stop-limit") {
       if (!stopPrice || !limitPrice) {
         return res.status(400).json({
           message: "Stop price and limit price are required for stop-limit orders"
         });
       }
-      entryPrice = limitPrice;
+      // entryPrice = limitPrice;
     }
 
     // Create trade in MongoDB
