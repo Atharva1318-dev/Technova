@@ -1,7 +1,7 @@
 import User from "../models/user.models.js";
 import { uploadToCloudinary } from "../middleware/upload.middleware.js";
 import { generateOTP, sendOTP, storeOTP, verifyOTP, normalizePhone } from "../services/sms.service.js";
-import { generateAdvisorWallet } from "../services/solana.service.js";
+import { generateAdvisorWallet, deriveEscrowPDA, createEscrowAccount } from "../services/solana.service.js";
 
 // Send OTP for phone verification
 export const sendPhoneOTP = async (req, res) => {
@@ -112,6 +112,40 @@ export const submitOnboarding = async (req, res) => {
       "technova/sebi-certificates"
     );
 
+    // Generate Solana wallet for the advisor
+    let solanaWallet = null;
+    let solanaEscrowPDA = null;
+    let escrowCreated = false;
+    let escrowTransactionId = null;
+    
+    try {
+      const walletResult = await generateAdvisorWallet();
+      solanaWallet = walletResult.publicKey;
+      
+      // Derive escrow PDA
+      const escrowResult = await deriveEscrowPDA(solanaWallet);
+      solanaEscrowPDA = escrowResult.escrowPDA;
+      
+      console.log(`✅ Generated Solana wallet for advisor: ${solanaWallet}`);
+      console.log(`✅ Derived escrow PDA: ${solanaEscrowPDA}`);
+      
+      // Create escrow account immediately (0.01 SOL signup fee)
+      try {
+        const escrowCreateResult = await createEscrowAccount(solanaWallet, 0.01, "SignupFee");
+        escrowCreated = true;
+        escrowTransactionId = escrowCreateResult.transactionId;
+        
+        console.log(`✅ Escrow account created: ${escrowTransactionId}`);
+        console.log(`   Explorer: ${escrowCreateResult.explorerUrl}`);
+      } catch (escrowError) {
+        console.warn("⚠️  Escrow creation failed (will retry later):", escrowError.message);
+        // Continue - escrow can be created by admin later
+      }
+    } catch (blockchainError) {
+      console.error("⚠️  Blockchain wallet generation failed:", blockchainError);
+      // Continue with onboarding even if blockchain fails
+    }
+
     // Do NOT set isVerified here — it's already set in OTP verification
     const user = await User.findByIdAndUpdate(
       userId,
@@ -122,6 +156,9 @@ export const submitOnboarding = async (req, res) => {
         phone: normalizedPhone,
         phoneVerified: true,
         verificationStatus: "pending",  // Admin will change to "approved"
+        solanaWallet,
+        solanaEscrowPDA,
+        escrowCreated,
         // isVerified remains true (already set from OTP step)
       },
       { new: true, select: "-password" }
@@ -134,6 +171,12 @@ export const submitOnboarding = async (req, res) => {
     return res.status(200).json({
       message: "Onboarding application submitted successfully",
       user,
+      blockchain: {
+        wallet: solanaWallet,
+        escrowPDA: solanaEscrowPDA,
+        escrowCreated,
+        escrowTransactionId,
+      },
     });
   } catch (error) {
     console.error("Error in submitOnboarding:", error);

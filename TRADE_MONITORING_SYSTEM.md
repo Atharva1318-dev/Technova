@@ -784,3 +784,5 @@ The Trade Monitoring System provides:
 
 This system eliminates manual monitoring and ensures trades are executed precisely when conditions are met, providing a professional trading experience for advisors and investors.
 
+
+

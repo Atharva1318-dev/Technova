@@ -87,7 +87,14 @@ const tradeSchema = new Schema(
     solanaTransactionId: { 
       type: String 
     },
+    solanaTradePDA: { 
+      type: String 
+    }, // Program Derived Address for the trade record
     isOnChain: { 
+      type: Boolean, 
+      default: false 
+    },
+    blockchainVerified: { 
       type: Boolean, 
       default: false 
     },

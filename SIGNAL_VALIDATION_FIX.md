@@ -248,3 +248,5 @@ This ensures `riskLevel` can only be one of these three values, whether it's the
 
 **Status:** ✅ FIXED - Signals can now be created and risk level is calculated automatically
 
+
+

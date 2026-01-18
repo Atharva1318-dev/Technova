@@ -12,6 +12,7 @@ import AdvisorSidebar from "../components/advisor/AdvisorSidebar";
 import AdvisorDashboardPage from "../components/advisor/AdvisorDashboardPage";
 import AdvisorTradePage from "../components/advisor/AdvisorTradePage";
 import AdvisorHistoryPage from "../components/advisor/AdvisorHistoryPage";
+import AdvisorBlockchainPage from "../components/advisor/AdvisorBlockchainPage";
 import SettingsPage from "../components/investor/SettingsPage";
 
 const AdvisorDashboard = () => {
@@ -118,6 +119,8 @@ const AdvisorDashboard = () => {
         return <AdvisorTradePage />;
       case "history":
         return <AdvisorHistoryPage />;
+      case "blockchain":
+        return <AdvisorBlockchainPage />;
       case "settings":
         return <SettingsPage />;
       default:

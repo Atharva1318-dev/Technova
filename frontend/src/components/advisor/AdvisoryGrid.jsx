@@ -31,7 +31,7 @@ const AdvisorsGrid = ({ advisors, onFollow, isAdvisorFollowed }) => {
           key={advisor._id}
           advisor={advisor}
           onFollow={onFollow}
-          isFollowed={isAdvisorFollowed(advisor._id)}   
+          isFollowed={isAdvisorFollowed(advisor._id)}
         />
       ))}
     </div>

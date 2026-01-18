@@ -27,7 +27,9 @@ const userSchema = new Schema(
       enum: ["pending", "approved", "rejected"], 
       default: "pending" 
     },
-    solanaWallet: { type: String }, // Solana PDA address
+    solanaWallet: { type: String }, // Solana public key
+    solanaEscrowPDA: { type: String }, // Escrow Program Derived Address
+    escrowCreated: { type: Boolean, default: false },
     trustScore: { type: Number, default: 0, min: 0, max: 100 },
     // SMS 2FA
     phoneVerified: { type: Boolean, default: false },
