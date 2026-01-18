@@ -22,6 +22,7 @@ import User from "../models/user.models.js";
  */
 class TradeMonitor {
   constructor(tradeData) {
+    console.log("tradeData inside TradeMonitor constructor", tradeData);
     this.tradeId = tradeData._id.toString();
     this.advisorId = tradeData.advisorId.toString();
     this.symbol = tradeData.symbol;

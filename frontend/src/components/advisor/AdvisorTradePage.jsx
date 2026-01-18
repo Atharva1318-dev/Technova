@@ -23,8 +23,8 @@ const AdvisorTradePage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [dataType, setDataType] = useState("historical"); // "intraday" or "historical"
-  const [fromDate, setFromDate] = useState("2025-01-01");
-  const [toDate, setToDate] = useState("2025-01-02");
+  const [fromDate, setFromDate] = useState("2026-01-16");
+  const [toDate, setToDate] = useState("2026-01-18");
   const [activeTrades, setActiveTrades] = useState([]);
   const [showSignalCreator, setShowSignalCreator] = useState(false);
   const [editingTrade, setEditingTrade] = useState(null);
@@ -378,7 +378,10 @@ const AdvisorTradePage = () => {
         apiUrl = `https://api.upstox.com/v3/historical-candle/NSE_EQ%7C${selectedStock.ISIN}/minutes/${timeframe}/${toDate}/${fromDate}`;
       }
 
+      console.log("apiUrl inside fetchChartData", apiUrl);
       const response = await axios.get(apiUrl);
+
+      console.log("response inside fetchChartData", response.data.data);
       
       if (response.data && response.data.data && response.data.data.candles) {
         const candles = response.data.data.candles;
