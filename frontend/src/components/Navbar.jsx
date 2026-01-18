@@ -50,7 +50,7 @@ export const NavWrapper = ({ children, className }) => {
   }, []);
 
   return (
-    <div className={`fixed inset-x-0 top-2 z-50 ${className}`}>
+    <div className={`fixed inset-x-0 top-1 z-50 ${className}`}>
       {React.Children.map(children, (c) =>
         React.isValidElement(c) ? React.cloneElement(c, { visible }) : c,
       )}
@@ -71,9 +71,8 @@ export const NavBody = ({ children, visible, className }) => {
     <div
       ref={ref}
       style={{ minWidth: "800px" }}
-      className={`relative z-50 mx-auto hidden max-w-7xl items-center justify-between rounded-full px-6 py-3 lg:flex backdrop-blur-lg ${
-        visible ? "bg-neutral-950/80 dark:bg-neutral-950/80" : ""
-      } ${className || ""}`}
+      className={`relative z-50 mx-auto hidden max-w-7xl items-center justify-between rounded-full px-6 py-3 lg:flex backdrop-blur-lg ${visible ? "bg-neutral-950/80 dark:bg-neutral-950/80" : ""
+        } ${className || ""}`}
     >
       {children}
     </div>
@@ -96,9 +95,8 @@ export const MobileNav = ({ children, visible }) => {
   return (
     <div
       ref={ref}
-      className={`relative z-50 mx-auto flex w-full max-w-[calc(100vw-1rem)] flex-col px-0 py-2 lg:hidden ${
-        visible ? "bg-white/80 dark:bg-neutral-950/80" : ""
-      }`}
+      className={`relative z-50 mx-auto flex w-full max-w-[calc(100vw-1rem)] flex-col px-0 py-2 lg:hidden ${visible ? "bg-white/80 dark:bg-neutral-950/80" : ""
+        }`}
     >
       {children}
     </div>
@@ -280,7 +278,7 @@ export default function Navbar() {
   };
 
   return (
-    <NavWrapper className="top-4">
+    <NavWrapper className="top-1">
       <NavBody>
         <NavbarContent userData={userData} onLogout={handleLogout} />
       </NavBody>

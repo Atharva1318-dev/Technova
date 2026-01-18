@@ -10,6 +10,8 @@ import { setUserData } from "../redux/userSlice";
 import { signInWithPopup } from "firebase/auth";
 import { auth, provider } from "../utils/firebase.js";
 
+import Navbar from "./Navbar";
+
 export default function SignUp() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -101,7 +103,7 @@ export default function SignUp() {
   return (
     // Main Container with Top Padding for Navbar
     <div className="min-h-screen bg-neutral-950 flex justify-center items-center px-4 pt-24 md:pt-32 relative overflow-hidden font-sans selection:bg-blue-500/30">
-
+      <Navbar />
       {/* Background Ambient Glows */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-blue-900/20 blur-[120px] rounded-full pointer-events-none" />
       <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-purple-900/10 blur-[100px] rounded-full pointer-events-none" />

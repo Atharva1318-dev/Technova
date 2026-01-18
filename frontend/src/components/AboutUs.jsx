@@ -212,7 +212,7 @@ const AboutUsPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-950">
       <Navbar />
-      
+
       {/* Hero Section */}
       <div className="relative overflow-hidden bg-gradient-to-r from-[#003366] via-[#2d1b69] to-[#4c1d95]">
         <div className="absolute inset-0 bg-black/30" />
@@ -226,7 +226,7 @@ const AboutUsPage = () => {
               Welcome to <span className="text-emerald-400">VeriFi</span>
             </h1>
             <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-              Revolutionizing the trading ecosystem with complete transparency and accountability. 
+              Revolutionizing the trading ecosystem with complete transparency and accountability.
               Where every trade tells the true story.
             </p>
             <div className="flex flex-wrap gap-4 justify-center">
@@ -283,11 +283,11 @@ const AboutUsPage = () => {
           <h2 className="text-3xl font-bold text-white mb-6 text-center">Our Mission</h2>
           <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl border border-gray-700 p-8 shadow-lg">
             <p className="text-lg text-gray-300 mb-6">
-              In today's trading ecosystem, investors face a critical challenge: <span className="font-semibold text-blue-400">lack of transparency</span>. 
+              In today's trading ecosystem, investors face a critical challenge: <span className="font-semibold text-blue-400">lack of transparency</span>.
               Advisors can manipulate performance data, hide losing trades, and create false narratives of success.
             </p>
             <p className="text-lg text-gray-300">
-              At VeriFi, we're building a <span className="font-semibold text-emerald-400">trust-first platform</span> where every trade is permanently recorded, 
+              At VeriFi, we're building a <span className="font-semibold text-emerald-400">trust-first platform</span> where every trade is permanently recorded,
               every advisor is SEBI-verified, and every performance metric tells the complete, unedited truth.
             </p>
           </div>
@@ -342,7 +342,7 @@ const AboutUsPage = () => {
             Join the Transparency Revolution
           </h2>
           <p className="text-gray-300 mb-8 max-w-2xl mx-auto">
-            Whether you're an advisor building credibility or an investor seeking trustworthy guidance, 
+            Whether you're an advisor building credibility or an investor seeking trustworthy guidance,
             VeriFi provides the platform for transparent, accountable trading.
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
@@ -357,7 +357,7 @@ const AboutUsPage = () => {
       </div>
 
       {/* Footer */}
-      <div className="bg-gradient-to-br from-gray-900 to-gray-950 text-white py-12 border-t border-gray-800">
+      {/* <div className="bg-gradient-to-br from-gray-900 to-gray-950 text-white py-12 border-t border-gray-800">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-6 md:mb-0">
@@ -373,7 +373,7 @@ const AboutUsPage = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };

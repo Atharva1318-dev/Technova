@@ -1,7 +1,7 @@
 import React from "react";
-import { 
-  LayoutDashboard, 
-  TrendingUp, 
+import {
+  LayoutDashboard,
+  TrendingUp,
   History,
   Settings,
   LogOut,
@@ -17,7 +17,7 @@ import {
 
 const AdvisorSidebar = ({ activePage, setActivePage, userData, onLogout }) => {
   const menuItems = [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+    // { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     { id: "trade", label: "Trade Signals", icon: TrendingUp },
     { id: "history", label: "History", icon: History },
     { id: "analytics", label: "Analytics", icon: BarChart3 },
@@ -36,10 +36,14 @@ const AdvisorSidebar = ({ activePage, setActivePage, userData, onLogout }) => {
       <div className="p-5 border-b border-gray-900 flex-shrink-0">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 bg-gradient-to-br from-blue-900/30 to-purple-900/30 border border-gray-800 rounded-lg flex items-center justify-center">
-            <Rocket className="w-4 h-4 text-blue-400" />
+            <img
+              src="/securities.png"
+              alt="VeriFi Logo"
+              className="h-10 w-10 object-contain"
+            />
           </div>
           <div>
-            <h1 className="text-lg font-bold">RA Hub</h1>
+            <h1 className="text-lg font-bold">VeriFi</h1>
             <p className="text-xs text-gray-500">Advisor Portal</p>
           </div>
         </div>
@@ -60,7 +64,7 @@ const AdvisorSidebar = ({ activePage, setActivePage, userData, onLogout }) => {
             <p className="text-xs text-gray-500 truncate">{userData?.email || ""}</p>
           </div>
         </div>
-        
+
         {/* SEBI Badge */}
         <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-2 mb-2">
           <div className="flex items-center justify-between">
@@ -81,7 +85,7 @@ const AdvisorSidebar = ({ activePage, setActivePage, userData, onLogout }) => {
             </span>
           </div>
           <div className="w-full bg-gray-800 rounded-full h-1">
-            <div 
+            <div
               className="bg-gradient-to-r from-yellow-500 to-orange-500 h-1 rounded-full"
               style={{ width: `${userData?.trustScore || 0}%` }}
             ></div>
@@ -94,27 +98,25 @@ const AdvisorSidebar = ({ activePage, setActivePage, userData, onLogout }) => {
         <div className="px-3 mb-1">
           <p className="text-xs text-gray-600 uppercase tracking-wider font-medium">Menu</p>
         </div>
-        
+
         <div className="space-y-1 px-2">
           {menuItems.map((item) => {
             const Icon = item.icon;
             const isActive = activePage === item.id;
-            
+
             return (
               <button
                 key={item.id}
                 onClick={() => setActivePage(item.id)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
-                  isActive
-                    ? "bg-gradient-to-r from-blue-900/30 to-purple-900/30 border border-blue-900/40 text-white shadow"
-                    : "text-gray-400 hover:bg-gray-900/50 hover:text-white"
-                }`}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${isActive
+                  ? "bg-gradient-to-r from-blue-900/30 to-purple-900/30 border border-blue-900/40 text-white shadow"
+                  : "text-gray-400 hover:bg-gray-900/50 hover:text-white"
+                  }`}
               >
-                <div className={`p-1.5 rounded ${
-                  isActive 
-                    ? "bg-gradient-to-br from-blue-500/20 to-purple-500/20" 
-                    : "bg-gray-900/50"
-                }`}>
+                <div className={`p-1.5 rounded ${isActive
+                  ? "bg-gradient-to-br from-blue-500/20 to-purple-500/20"
+                  : "bg-gray-900/50"
+                  }`}>
                   <Icon className={`w-4 h-4 ${isActive ? "text-blue-400" : "text-gray-500"}`} />
                 </div>
                 <span className="font-medium text-sm">{item.label}</span>
@@ -125,12 +127,12 @@ const AdvisorSidebar = ({ activePage, setActivePage, userData, onLogout }) => {
             );
           })}
         </div>
-        
+
         {/* Quick Stats */}
         <div className="px-3 mt-4 mb-1">
           <p className="text-xs text-gray-600 uppercase tracking-wider font-medium">Stats</p>
         </div>
-        
+
         <div className="space-y-1 px-2">
           <div className="flex items-center justify-between bg-gray-900/30 border border-gray-800 rounded-lg p-2">
             <div className="flex items-center gap-2">
@@ -139,7 +141,7 @@ const AdvisorSidebar = ({ activePage, setActivePage, userData, onLogout }) => {
             </div>
             <span className="text-xs font-bold text-white">{userData?.subscriberCount || 0}</span>
           </div>
-          
+
           <div className="flex items-center justify-between bg-gray-900/30 border border-gray-800 rounded-lg p-2">
             <div className="flex items-center gap-2">
               <Activity className="w-3.5 h-3.5 text-purple-400" />
@@ -147,7 +149,7 @@ const AdvisorSidebar = ({ activePage, setActivePage, userData, onLogout }) => {
             </div>
             <span className="text-xs font-bold text-green-400">{userData?.winRate?.toFixed(0) || 0}%</span>
           </div>
-          
+
           <div className="flex items-center justify-between bg-gray-900/30 border border-gray-800 rounded-lg p-2">
             <div className="flex items-center gap-2">
               <DollarSign className="w-3.5 h-3.5 text-green-400" />
@@ -169,7 +171,7 @@ const AdvisorSidebar = ({ activePage, setActivePage, userData, onLogout }) => {
           <LogOut className="w-5 h-5 group-hover:scale-110 transition-transform" />
           <span className="text-sm">Logout</span>
         </button>
-        
+
         {/* Platform Status */}
         <div className="mt-4 pt-3 border-t border-gray-800">
           <div className="flex items-center justify-center gap-1.5">

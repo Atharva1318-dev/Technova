@@ -42,10 +42,14 @@ const Sidebar = ({ activePage, setActivePage, userData, onLogout }) => {
       <div className="p-5 border-b border-gray-900 flex-shrink-0">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 bg-gradient-to-br from-blue-900/30 to-purple-900/30 border border-gray-800 rounded-lg flex items-center justify-center">
-            <Rocket className="w-4 h-4 text-blue-400" />
+            <img
+              src="/securities.png"
+              alt="VeriFi Logo"
+              className="h-10 w-10 object-contain"
+            />
           </div>
           <div>
-            <h1 className="text-lg font-bold">RA Hub</h1>
+            <h1 className="text-lg font-bold">VeriFi</h1>
             <p className="text-xs text-gray-500">Investor Portal</p>
           </div>
         </div>
@@ -111,13 +115,13 @@ const Sidebar = ({ activePage, setActivePage, userData, onLogout }) => {
                 key={item.id}
                 onClick={() => setActivePage(item.id)}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${isActive
-                    ? "bg-gradient-to-r from-blue-900/30 to-purple-900/30 border border-blue-900/40 text-white shadow"
-                    : "text-gray-400 hover:bg-gray-900/50 hover:text-white"
+                  ? "bg-gradient-to-r from-blue-900/30 to-purple-900/30 border border-blue-900/40 text-white shadow"
+                  : "text-gray-400 hover:bg-gray-900/50 hover:text-white"
                   }`}
               >
                 <div className={`p-1.5 rounded ${isActive
-                    ? "bg-gradient-to-br from-blue-500/20 to-purple-500/20"
-                    : "bg-gray-900/50"
+                  ? "bg-gradient-to-br from-blue-500/20 to-purple-500/20"
+                  : "bg-gray-900/50"
                   }`}>
                   <Icon className={`w-4 h-4 ${isActive ? "text-blue-400" : "text-gray-500"}`} />
                 </div>

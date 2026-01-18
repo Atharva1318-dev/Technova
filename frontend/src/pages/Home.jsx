@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 
 import { TextGenerateEffect } from "../components/ui/text-generate-effect";
+import { FlipWords } from "../components/ui/flip-words";
 
 // --- DATA: FEATURES ---
 const features = [
@@ -74,7 +75,7 @@ const faqs = [
   },
   {
     question: "Is this platform for real money trading?",
-    answer: "Currently, Technova operates as a high-fidelity simulation and advisory platform. You subscribe to real advisors, but the trade execution happens in a risk-free paper trading environment for validation.",
+    answer: "Currently, VeriFi operates as a high-fidelity simulation and advisory platform. You subscribe to real advisors, but the trade execution happens in a risk-free paper trading environment for validation.",
   },
   {
     question: "How does the AI Risk Analysis work?",
@@ -112,12 +113,17 @@ export default function Home() {
           {/* Main Headline */}
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter text-balance max-w-5xl mx-auto bg-clip-text text-transparent bg-gradient-to-b from-white via-white to-white/40">
             Trust is no longer a promise. <br />
-            It’s a <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600">Smart Contract.</span>
+            It’s a{" "}
+            {/* 👇 REPLACED STATIC TEXT WITH FLIP WORDS 👇 */}
+            <FlipWords
+              words={["Smart Contract.", "Verifiable Log.", "Mathematical Truth.", "Risk-Free Reality."]}
+              className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600 pb-2"
+            />
           </h1>
 
           <div className="mx-auto max-w-[700px]">
             <TextGenerateEffect
-              words="The world's first verified trading ecosystem where SEBI-registered advisors are tracked by Blockchain and analyzed by AI. No deleted trades. No fake screenshots."
+              words="Verified trading ecosystem where SEBI-registered advisors are tracked by Blockchain and analyzed by AI. No deleted trades. No fake screenshots."
               className="text-neutral-400 text-lg md:text-xl leading-relaxed"
             />
           </div>
@@ -126,7 +132,7 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8">
             <Link to="/signup">
               <Button size="lg" className="h-14 px-8 rounded-full text-base font-semibold bg-white text-black hover:bg-neutral-200 shadow-[0_0_20px_rgba(255,255,255,0.2)]">
-                Start Trading Now
+                Get Started Now
               </Button>
             </Link>
             <Link to="/login">
@@ -154,18 +160,24 @@ export default function Home() {
             {features.map((feature, index) => (
               <Card
                 key={index}
-                className="border border-white/10 rounded-3xl bg-neutral-900/50 backdrop-blur-sm overflow-hidden relative group"
+                // UPDATED CLASSNAME:
+                // 1. Removed 'border-white/10' (let glow serve as border)
+                // 2. Changed bg to 'bg-neutral-900/40' (slightly more transparent)
+                // 3. Removed 'overflow-hidden' (let glow spread)
+                className="rounded-3xl bg-neutral-900/40 backdrop-blur-sm relative group border-gray-800"
               >
-                {/* Aceternity Glowing Effect */}
-                <GlowingEffect
-                  blur={0}
-                  borderWidth={2}
-                  spread={80}
-                  glow={true}
-                  disabled={false}
-                  proximity={64}
-                  inactiveZone={0.01}
-                />
+                <div className="absolute inset-0 rounded-3xl">
+                  <GlowingEffect
+                    blur={0}
+                    borderWidth={1}
+                    spread={80}
+                    glow={true}
+                    disabled={false}
+                    proximity={64}
+                    inactiveZone={0.01}
+                  />
+                </div>
+
                 <CardContent className="pt-10 pb-8 px-6 text-center flex flex-col items-center z-10 relative h-full">
                   <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 mb-6 group-hover:scale-110 transition-transform duration-300">
                     {feature.icon}
@@ -279,7 +291,7 @@ export default function Home() {
               <Link to="/signup">
                 <Button
                   size="lg"
-                  className="h-16 px-10 rounded-full font-bold text-lg bg-white text-black hover:bg-gray-200 shadow-[0_0_40px_rgba(255,255,255,0.3)] transition-all hover:scale-105"
+                  className="animate-bounce h-16 px-10 rounded-full font-bold text-lg bg-white text-black hover:bg-gray-200 shadow-[0_0_40px_rgba(255,255,255,0.3)] transition-all hover:scale-105"
                 >
                   Get Started Now <ArrowRight className="ml-2 h-6 w-6" />
                 </Button>
