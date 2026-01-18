@@ -1,0 +1,436 @@
+{
+  "version": "0.1.0",
+  "name": "technova_escrow",
+  "instructions": [
+    {
+      "name": "initializeEscrow",
+      "accounts": [
+        {
+          "name": "escrowAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "advisor",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "platformAuthority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "escrowType",
+          "type": {
+            "defined": "EscrowType"
+          }
+        },
+        {
+          "name": "expiresAt",
+          "type": {
+            "option": "i64"
+          }
+        }
+      ]
+    },
+    {
+      "name": "fundEscrow",
+      "accounts": [
+        {
+          "name": "escrowAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "funder",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "additionalAmount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "releaseEscrow",
+      "accounts": [
+        {
+          "name": "escrowAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "advisor",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "platformAuthority",
+          "isMut": false,
+          "isSigner": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "refundEscrow",
+      "accounts": [
+        {
+          "name": "escrowAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "recipient",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "platformAuthority",
+          "isMut": false,
+          "isSigner": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "expireEscrow",
+      "accounts": [
+        {
+          "name": "escrowAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "caller",
+          "isMut": false,
+          "isSigner": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "closeEscrow",
+      "accounts": [
+        {
+          "name": "escrowAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "platformAuthority",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "rentReceiver",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    }
+  ],
+  "accounts": [
+    {
+      "name": "EscrowAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "advisor",
+            "type": "publicKey"
+          },
+          {
+            "name": "platformAuthority",
+            "type": "publicKey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "status",
+            "type": {
+              "defined": "EscrowStatus"
+            }
+          },
+          {
+            "name": "createdAt",
+            "type": "i64"
+          },
+          {
+            "name": "expiresAt",
+            "type": {
+              "option": "i64"
+            }
+          },
+          {
+            "name": "escrowType",
+            "type": {
+              "defined": "EscrowType"
+            }
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    }
+  ],
+  "types": [
+    {
+      "name": "EscrowStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Active"
+          },
+          {
+            "name": "Released"
+          },
+          {
+            "name": "Refunded"
+          },
+          {
+            "name": "Expired"
+          }
+        ]
+      }
+    },
+    {
+      "name": "EscrowType",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "SignupFee"
+          },
+          {
+            "name": "PerformanceBond"
+          },
+          {
+            "name": "Subscription"
+          },
+          {
+            "name": "Penalty"
+          }
+        ]
+      }
+    }
+  ],
+  "events": [
+    {
+      "name": "EscrowCreated",
+      "fields": [
+        {
+          "name": "escrow",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "advisor",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "amount",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "escrowType",
+          "type": {
+            "defined": "EscrowType"
+          },
+          "index": false
+        },
+        {
+          "name": "timestamp",
+          "type": "i64",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "EscrowFunded",
+      "fields": [
+        {
+          "name": "escrow",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "funder",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "amount",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "newTotal",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "timestamp",
+          "type": "i64",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "EscrowReleased",
+      "fields": [
+        {
+          "name": "escrow",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "advisor",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "amount",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "timestamp",
+          "type": "i64",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "EscrowRefunded",
+      "fields": [
+        {
+          "name": "escrow",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "recipient",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "amount",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "timestamp",
+          "type": "i64",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "EscrowExpired",
+      "fields": [
+        {
+          "name": "escrow",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "timestamp",
+          "type": "i64",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "EscrowClosed",
+      "fields": [
+        {
+          "name": "escrow",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "timestamp",
+          "type": "i64",
+          "index": false
+        }
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "Unauthorized",
+      "msg": "Unauthorized"
+    },
+    {
+      "code": 6001,
+      "name": "EscrowNotActive",
+      "msg": "Escrow is not active"
+    },
+    {
+      "code": 6002,
+      "name": "CannotCloseActiveEscrow",
+      "msg": "Cannot close active escrow"
+    },
+    {
+      "code": 6003,
+      "name": "EscrowNotEmpty",
+      "msg": "Escrow still has funds"
+    },
+    {
+      "code": 6004,
+      "name": "InvalidAmount",
+      "msg": "Invalid amount"
+    },
+    {
+      "code": 6005,
+      "name": "Overflow",
+      "msg": "Overflow"
+    },
+    {
+      "code": 6006,
+      "name": "InvalidExpiry",
+      "msg": "Invalid expiry"
+    },
+    {
+      "code": 6007,
+      "name": "NoExpirySet",
+      "msg": "No expiry set"
+    },
+    {
+      "code": 6008,
+      "name": "NotExpiredYet",
+      "msg": "Not expired yet"
+    }
+  ]
+}
+

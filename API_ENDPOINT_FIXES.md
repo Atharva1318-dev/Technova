@@ -247,3 +247,5 @@ curl http://localhost:8901/api/trade/advisor/trades?status=closed \
 
 All endpoints now correctly match the backend route definitions.
 
+
+

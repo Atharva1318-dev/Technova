@@ -12,7 +12,8 @@ import {
   Activity,
   Users,
   Target,
-  DollarSign
+  DollarSign,
+  Link2
 } from "lucide-react";
 
 const AdvisorSidebar = ({ activePage, setActivePage, userData, onLogout }) => {
@@ -20,6 +21,7 @@ const AdvisorSidebar = ({ activePage, setActivePage, userData, onLogout }) => {
     // { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     { id: "trade", label: "Trade Signals", icon: TrendingUp },
     { id: "history", label: "History", icon: History },
+    { id: "blockchain", label: "Blockchain", icon: Link2 },
     { id: "analytics", label: "Analytics", icon: BarChart3 },
     { id: "settings", label: "Settings", icon: Settings },
   ];

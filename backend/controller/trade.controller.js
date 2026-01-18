@@ -81,26 +81,31 @@ export const createSignal = async (req, res) => {
       target,
     });
 
-    // Store in Supabase for real-time access
-    const supabaseData = {
-      trade_id: trade._id.toString(),
-      advisor_id: advisorId.toString(),
-      symbol,
-      asset_class: assetClass,
-      order_type: orderType,
-      direction,
-      entry_price: entryPrice,
-      stop_loss: stopLoss,
-      target,
-      quantity,
-      status: trade.status,
-      created_at: new Date().toISOString(),
-    };
+    // Store in Supabase for real-time access (optional)
+    try {
+      const supabaseData = {
+        trade_id: trade._id.toString(),
+        advisor_id: advisorId.toString(),
+        symbol,
+        asset_class: assetClass,
+        order_type: orderType,
+        direction,
+        entry_price: entryPrice,
+        stop_loss: stopLoss,
+        target,
+        quantity,
+        status: trade.status,
+        created_at: new Date().toISOString(),
+      };
 
-    if (orderType === "market") {
-      await createActiveTrade(supabaseData);
-    } else {
-      await createPendingTrade(supabaseData);
+      if (orderType === "market") {
+        await createActiveTrade(supabaseData);
+      } else {
+        await createPendingTrade(supabaseData);
+      }
+    } catch (supabaseError) {
+      // Supabase is optional - log but don't fail
+      console.log("ℹ️  Supabase not available (trade saved in MongoDB)");
     }
 
     // Emit real-time signal to investors
@@ -177,11 +182,15 @@ export const updateTrade = async (req, res) => {
 
     await trade.save();
 
-    // Update in Supabase
-    await updateActiveTrade(tradeId, {
-      stop_loss: trade.stopLoss,
-      target: trade.target,
-    });
+    // Update in Supabase (optional)
+    try {
+      await updateActiveTrade(tradeId, {
+        stop_loss: trade.stopLoss,
+        target: trade.target,
+      });
+    } catch (supabaseError) {
+      console.log("ℹ️  Supabase not available (trade updated in MongoDB)");
+    }
 
     // Update the monitor with new values
     MonitorManager.updateMonitor(tradeId, {
@@ -251,8 +260,12 @@ export const closeTrade = async (req, res) => {
       { status: "closed" }
     );
 
-    // Remove from Supabase active trades
-    await deleteActiveTrade(tradeId);
+    // Remove from Supabase active trades (optional)
+    try {
+      await deleteActiveTrade(tradeId);
+    } catch (supabaseError) {
+      console.log("ℹ️  Supabase not available (trade closed in MongoDB)");
+    }
 
     // Write to blockchain
     const advisor = await User.findById(advisorId);
@@ -261,18 +274,40 @@ export const closeTrade = async (req, res) => {
         const blockchainResult = await writeTradeToBlockchain({
           advisorPublicKey: advisor.solanaWallet,
           tradeDetails: {
+            tradeId: trade._id.toString(),
             symbol: trade.symbol,
+            assetClass: trade.assetClass,
+            direction: trade.direction,
             entryPrice: trade.entryPrice,
             exitPrice: trade.exitPrice,
+            quantity: trade.quantity,
             profitLoss: trade.profitLoss,
+            profitLossPercentage: trade.profitLossPercentage,
+            outcome: outcome,
+            stopLoss: trade.stopLoss,
+            target: trade.target,
+            openedAt: trade.createdAt,
+            closedAt: trade.closedAt,
+            closedReason: trade.closedReason,
           },
         });
+        
         trade.solanaTransactionId = blockchainResult.transactionId;
-        trade.isOnChain = true;
+        trade.isOnChain = !blockchainResult.mock; // Only mark as on-chain if not mock
+        
+        if (blockchainResult.tradePDA) {
+          trade.solanaTradePDA = blockchainResult.tradePDA;
+        }
+        
         await trade.save();
+        
+        console.log(`✅ Trade ${trade._id} written to blockchain: ${blockchainResult.transactionId}`);
       } catch (blockchainError) {
-        console.error("Blockchain write failed:", blockchainError);
+        console.error("⚠️  Blockchain write failed (trade still saved):", blockchainError);
+        // Trade is still saved in MongoDB, blockchain is optional
       }
+    } else {
+      console.log("ℹ️  Advisor has no Solana wallet, skipping blockchain write");
     }
 
     // Update advisor stats
